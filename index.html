@@ -299,6 +299,35 @@ td:last-child{border-radius:0 12px 12px 0}
 }
 .profile-modal{width:min(500px,100%)}
 
+
+.event-nav-card{position:relative}
+.event-nav-controls{
+  display:flex;align-items:center;justify-content:space-between;gap:8px;margin-top:12px
+}
+.event-arrow{
+  width:34px;height:34px;border-radius:11px;border:1px solid rgba(0,0,0,.08);
+  background:rgba(255,255,255,.76);font:inherit;font-size:18px;font-weight:900;cursor:pointer;
+  display:grid;place-items:center;transition:.18s ease
+}
+.event-arrow:hover{transform:translateY(-1px);background:#fff}
+.event-nav-card.current-dark .event-arrow{
+  background:rgba(255,255,255,.1);color:#fff;border-color:rgba(255,255,255,.12)
+}
+.event-counter{font-size:10px;font-weight:900;letter-spacing:.08em;color:#777}
+.event-nav-card.current-dark .event-counter{color:#bbb}
+.event-manager-head{display:flex;justify-content:space-between;align-items:flex-start;gap:12px;flex-wrap:wrap}
+.event-table-wrap{overflow:auto;margin-top:16px}
+.event-admin-table{min-width:860px}
+.event-actions{display:flex;gap:6px}
+.event-editor-backdrop{
+  display:none;position:fixed;inset:0;background:rgba(20,20,20,.34);backdrop-filter:blur(8px);
+  z-index:100;padding:22px;align-items:center;justify-content:center
+}
+.event-editor{
+  width:min(620px,100%);max-height:90vh;overflow:auto;border-radius:26px;padding:22px;
+  background:rgba(255,255,255,.94);box-shadow:0 35px 100px rgba(0,0,0,.25)
+}
+
 @media(max-width:1180px){
   .scorecards{grid-template-columns:repeat(3,1fr)}
   .content-grid{grid-template-columns:1fr}
@@ -433,17 +462,26 @@ td:last-child{border-radius:0 12px 12px 0}
           <div class="value">7</div>
           <div class="sub">58% complete</div>
         </div>
-        <div class="score event current glass">
+        <div class="score event current glass event-nav-card current-dark">
           <div class="label">Current Event</div>
-          <div class="value">No active event</div>
-          <div class="sub">Use this month to prepare ahead</div>
-        </div>
-        <div class="score event glass">
-          <div class="label">Upcoming Events</div>
-          <div class="event-list">
-            <div class="event-line"><b>Sep 7</b><span>Labour Day</span></div>
-            <div class="event-line"><b>Sep 21</b><span>Zero Emissions Day</span></div>
+          <div class="value" id="currentEventName">No active event</div>
+          <div class="sub" id="currentEventDate">August 2026</div>
+          <div class="event-nav-controls">
+            <button class="event-arrow" id="currentPrev" type="button" aria-label="Previous current event">‹</button>
+            <span class="event-counter" id="currentEventCounter">1 / 1</span>
+            <button class="event-arrow" id="currentNext" type="button" aria-label="Next current event">›</button>
           </div>
+        </div>
+        <div class="score event glass event-nav-card">
+          <div class="label">Upcoming Event</div>
+          <div class="value" id="upcomingEventName">Labour Day</div>
+          <div class="sub" id="upcomingEventDate">Sep 7, 2026</div>
+          <div class="event-nav-controls">
+            <button class="event-arrow" id="upcomingPrev" type="button" aria-label="Previous upcoming event">‹</button>
+            <span class="event-counter" id="upcomingEventCounter">1 / 3</span>
+            <button class="event-arrow" id="upcomingNext" type="button" aria-label="Next upcoming event">›</button>
+          </div>
+        </div>
           <div class="sub">Next scheduled awareness dates</div>
         </div>
       </section>
@@ -589,14 +627,39 @@ td:last-child{border-radius:0 12px 12px 0}
 
       <div id="eventsSection" class="page-section">
         <section class="section-panel glass">
-          <div class="eyebrow">Annual planning</div>
-          <h2>Events</h2>
-          <p>Multiple events can exist in the same month. Each event keeps its own date and planning window.</p>
-          <div class="settings-grid">
-            <div class="setting-card"><b>Sep 7 · Labour Day</b><div class="sub">Seasonal / Employee appreciation</div></div>
-            <div class="setting-card"><b>Sep 21 · Zero Emissions Day</b><div class="sub">Sustainability / Clean air</div></div>
-            <div class="setting-card"><b>Apr 1–30 · National Welding Month</b><div class="sub">Industry / Welding</div></div>
-            <div class="setting-card"><b>May 1–31 · Clean Air Month</b><div class="sub">Air quality / Awareness</div></div>
+          <div class="event-manager-head">
+            <div>
+              <div class="eyebrow">Annual planning</div>
+              <h2>Events</h2>
+              <p>Add, edit or delete awareness dates, special days, campaigns and industry events.</p>
+            </div>
+            <button class="primary-btn" id="addEventBtn">＋ Add Event</button>
+          </div>
+
+          <div class="event-table-wrap">
+            <table class="event-admin-table">
+              <thead>
+                <tr><th>Date</th><th>Event</th><th>Category</th><th>Planning Starts</th><th>Notes</th><th>Actions</th></tr>
+              </thead>
+              <tbody id="eventTableBody">
+                <tr data-id="labour-day">
+                  <td>Sep 7, 2026</td><td>Labour Day</td><td>Seasonal</td><td>Aug 10, 2026</td><td>Employee appreciation</td>
+                  <td><div class="event-actions"><button class="action-btn edit-event">Edit</button><button class="action-btn delete delete-event">Delete</button></div></td>
+                </tr>
+                <tr data-id="zero-emissions-day">
+                  <td>Sep 21, 2026</td><td>Zero Emissions Day</td><td>Sustainability</td><td>Aug 21, 2026</td><td>Clean air awareness</td>
+                  <td><div class="event-actions"><button class="action-btn edit-event">Edit</button><button class="action-btn delete delete-event">Delete</button></div></td>
+                </tr>
+                <tr data-id="welding-month">
+                  <td>Apr 1–30, 2027</td><td>National Welding Month</td><td>Industry</td><td>Mar 1, 2027</td><td>Welding content planning</td>
+                  <td><div class="event-actions"><button class="action-btn edit-event">Edit</button><button class="action-btn delete delete-event">Delete</button></div></td>
+                </tr>
+                <tr data-id="clean-air-month">
+                  <td>May 1–31, 2027</td><td>Clean Air Month</td><td>Air Quality</td><td>Apr 1, 2027</td><td>Awareness campaign</td>
+                  <td><div class="event-actions"><button class="action-btn edit-event">Edit</button><button class="action-btn delete delete-event">Delete</button></div></td>
+                </tr>
+              </tbody>
+            </table>
           </div>
         </section>
       </div>
@@ -625,6 +688,32 @@ td:last-child{border-radius:0 12px 12px 0}
   </div>
 </div>
 
+
+
+<div class="event-editor-backdrop" id="eventEditorBackdrop">
+  <div class="event-editor">
+    <div class="modal-head">
+      <div><div class="eyebrow">Event management</div><h2 id="eventEditorTitle">Add Event</h2></div>
+      <button class="icon-btn" id="closeEventEditor">×</button>
+    </div>
+
+    <form id="eventForm">
+      <input type="hidden" id="editingEventId">
+      <div class="form-grid">
+        <div class="field full"><label>Event Name</label><input id="eventNameInput" required placeholder="e.g. Clean Air Month"></div>
+        <div class="field"><label>Start Date</label><input id="eventStartInput" type="date" required></div>
+        <div class="field"><label>End Date</label><input id="eventEndInput" type="date"></div>
+        <div class="field"><label>Planning Starts</label><input id="eventPlanningInput" type="date"></div>
+        <div class="field"><label>Category</label><input id="eventCategoryInput" placeholder="Industry, Seasonal, Safety..."></div>
+        <div class="field full"><label>Notes</label><textarea id="eventNotesInput" placeholder="Add planning notes..."></textarea></div>
+      </div>
+      <div class="modal-actions">
+        <button class="ghost-btn" type="button" id="cancelEventEditor">Cancel</button>
+        <button class="primary-btn" type="submit">Save Event</button>
+      </div>
+    </form>
+  </div>
+</div>
 
 <div class="modal-backdrop" id="profileModalBackdrop">
   <div class="modal profile-modal">
@@ -836,6 +925,133 @@ deleteProfileBtn.onclick = () => {
   const next = document.querySelector('.profile-item');
   if (next) next.click();
 };
+
+
+const currentEvents = [
+  {name:'No active event', date:'August 2026'}
+];
+const upcomingEvents = [
+  {name:'Labour Day', date:'Sep 7, 2026'},
+  {name:'Zero Emissions Day', date:'Sep 21, 2026'},
+  {name:'National Welding Month', date:'Apr 1–30, 2027'}
+];
+
+let currentEventIndex = 0;
+let upcomingEventIndex = 0;
+
+function renderCurrentEvent(){
+  const e = currentEvents[currentEventIndex];
+  document.getElementById('currentEventName').textContent = e.name;
+  document.getElementById('currentEventDate').textContent = e.date;
+  document.getElementById('currentEventCounter').textContent = `${currentEventIndex + 1} / ${currentEvents.length}`;
+}
+function renderUpcomingEvent(){
+  const e = upcomingEvents[upcomingEventIndex];
+  document.getElementById('upcomingEventName').textContent = e.name;
+  document.getElementById('upcomingEventDate').textContent = e.date;
+  document.getElementById('upcomingEventCounter').textContent = `${upcomingEventIndex + 1} / ${upcomingEvents.length}`;
+}
+document.getElementById('currentPrev').onclick = () => {
+  currentEventIndex = (currentEventIndex - 1 + currentEvents.length) % currentEvents.length;
+  renderCurrentEvent();
+};
+document.getElementById('currentNext').onclick = () => {
+  currentEventIndex = (currentEventIndex + 1) % currentEvents.length;
+  renderCurrentEvent();
+};
+document.getElementById('upcomingPrev').onclick = () => {
+  upcomingEventIndex = (upcomingEventIndex - 1 + upcomingEvents.length) % upcomingEvents.length;
+  renderUpcomingEvent();
+};
+document.getElementById('upcomingNext').onclick = () => {
+  upcomingEventIndex = (upcomingEventIndex + 1) % upcomingEvents.length;
+  renderUpcomingEvent();
+};
+
+const eventEditor = document.getElementById('eventEditorBackdrop');
+const eventForm = document.getElementById('eventForm');
+const eventTableBody = document.getElementById('eventTableBody');
+
+function openEventEditor(row=null){
+  document.getElementById('eventEditorTitle').textContent = row ? 'Edit Event' : 'Add Event';
+  document.getElementById('editingEventId').value = row ? row.dataset.id : '';
+  document.getElementById('eventNameInput').value = row ? row.children[1].textContent : '';
+  document.getElementById('eventCategoryInput').value = row ? row.children[2].textContent : '';
+  document.getElementById('eventNotesInput').value = row ? row.children[4].textContent : '';
+  document.getElementById('eventStartInput').value = '';
+  document.getElementById('eventEndInput').value = '';
+  document.getElementById('eventPlanningInput').value = '';
+  eventEditor.style.display = 'flex';
+}
+document.getElementById('addEventBtn').onclick = () => openEventEditor();
+document.getElementById('closeEventEditor').onclick =
+document.getElementById('cancelEventEditor').onclick = () => eventEditor.style.display='none';
+eventEditor.addEventListener('click', e => { if(e.target === eventEditor) eventEditor.style.display='none'; });
+
+function bindEventActions(){
+  document.querySelectorAll('.edit-event').forEach(btn => {
+    btn.onclick = () => openEventEditor(btn.closest('tr'));
+  });
+  document.querySelectorAll('.delete-event').forEach(btn => {
+    btn.onclick = () => {
+      const row = btn.closest('tr');
+      if(confirm(`Delete ${row.children[1].textContent}?`)) row.remove();
+    };
+  });
+}
+bindEventActions();
+
+function formatDateOnly(value){
+  if(!value) return '';
+  const [y,m,d] = value.split('-').map(Number);
+  const dt = new Date(Date.UTC(y,m-1,d));
+  return dt.toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric',timeZone:'UTC'});
+}
+
+eventForm.addEventListener('submit', e => {
+  e.preventDefault();
+  const name = document.getElementById('eventNameInput').value.trim();
+  const category = document.getElementById('eventCategoryInput').value.trim() || 'Other';
+  const notes = document.getElementById('eventNotesInput').value.trim();
+  const start = document.getElementById('eventStartInput').value;
+  const end = document.getElementById('eventEndInput').value;
+  const planning = document.getElementById('eventPlanningInput').value;
+
+  if(!name || !start) return;
+
+  const startLabel = formatDateOnly(start);
+  const endLabel = end ? formatDateOnly(end) : '';
+  const dateLabel = endLabel ? `${startLabel} – ${endLabel}` : startLabel;
+  const planningLabel = planning ? formatDateOnly(planning) : '—';
+
+  const existingId = document.getElementById('editingEventId').value;
+  if(existingId){
+    const row = eventTableBody.querySelector(`tr[data-id="${existingId}"]`);
+    if(row){
+      row.children[0].textContent = dateLabel;
+      row.children[1].textContent = name;
+      row.children[2].textContent = category;
+      row.children[3].textContent = planningLabel;
+      row.children[4].textContent = notes;
+    }
+  } else {
+    const id = 'event-' + Date.now();
+    const row = document.createElement('tr');
+    row.dataset.id = id;
+    row.innerHTML = `
+      <td>${dateLabel}</td><td>${name}</td><td>${category}</td><td>${planningLabel}</td><td>${notes}</td>
+      <td><div class="event-actions"><button class="action-btn edit-event" type="button">Edit</button><button class="action-btn delete delete-event" type="button">Delete</button></div></td>`;
+    eventTableBody.appendChild(row);
+
+    upcomingEvents.push({name, date:dateLabel});
+    renderUpcomingEvent();
+  }
+
+  bindEventActions();
+  eventEditor.style.display = 'none';
+});
+renderCurrentEvent();
+renderUpcomingEvent();
 
 </script>
 </body>
