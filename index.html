@@ -369,12 +369,12 @@ td:last-child{border-radius:0 12px 12px 0}
 
           <div class="table-view" id="listView">
             <table>
-              <thead><tr><th>Date</th><th>Platform</th><th>Topic</th><th>Brand</th><th>Owner</th><th>Language</th><th>Priority</th><th>Promotion Type</th><th>Status</th></tr></thead>
+              <thead><tr><th>Date</th><th>Platform</th><th>Topic</th><th>Brand</th><th>Owner</th><th>Language</th><th>Priority</th><th>Promotion Type</th><th>Status</th><th>Actions</th></tr></thead>
               <tbody>
-                <tr><td>Aug 26</td><td>LinkedIn</td><td>Labour Day prep</td><td>Plymovent</td><td>Varun</td><td>English</td><td>High</td><td>Organic</td><td><span class="status scheduled">Scheduled</span></td></tr>
-                <tr><td>Aug 24</td><td>LinkedIn</td><td>Assessment CTA</td><td>Plymovent</td><td>Varun</td><td>English</td><td>Medium</td><td>Paid</td><td><span class="status published">Published</span></td></tr>
-                <tr><td>Aug 21</td><td>Facebook</td><td>FAQ</td><td>RTF</td><td>Varun</td><td>French</td><td>Low</td><td>Organic</td><td><span class="status published">Published</span></td></tr>
-                <tr><td>Aug 19</td><td>Instagram</td><td>Product reel</td><td>RTF</td><td>Varun</td><td>English</td><td>High</td><td>Organic</td><td><span class="status scheduled">Scheduled</span></td></tr>
+                <tr><td>Aug 26</td><td>LinkedIn</td><td>Labour Day prep</td><td>Plymovent</td><td>Varun</td><td>English</td><td>High</td><td>Organic</td><td><span class="status scheduled">Scheduled</span></td><td><div class="actions"><button class="action-btn edit-post">Edit</button><button class="action-btn delete delete-post">Delete</button></div></td></tr>
+                <tr><td>Aug 24</td><td>LinkedIn</td><td>Assessment CTA</td><td>Plymovent</td><td>Varun</td><td>English</td><td>Medium</td><td>Paid</td><td><span class="status published">Published</span></td><td>—</td></tr>
+                <tr><td>Aug 21</td><td>Facebook</td><td>FAQ</td><td>RTF</td><td>Varun</td><td>French</td><td>Low</td><td>Organic</td><td><span class="status published">Published</span></td><td>—</td></tr>
+                <tr><td>Aug 19</td><td>Instagram</td><td>Product reel</td><td>RTF</td><td>Varun</td><td>English</td><td>High</td><td>Organic</td><td><span class="status scheduled">Scheduled</span></td><td><div class="actions"><button class="action-btn edit-post">Edit</button><button class="action-btn delete delete-post">Delete</button></div></td></tr>
               </tbody>
             </table>
           </div>
@@ -424,7 +424,6 @@ td:last-child{border-radius:0 12px 12px 0}
     </div>
     <div class="form-grid">
       <div class="field"><label>Date</label><input type="date" value="2026-08-27"></div>
-      <div class="field"><label>Publish Time</label><input type="time" value="10:00"></div>
       <div class="field"><label>Owner</label><select><option>Varun</option><option>Zyaam</option><option>Team</option></select></div>
       <div class="field"><label>Visibility</label><select><option>Private</option><option>Team</option></select></div>
       <div class="field"><label>Brand</label><select><option>Plymovent</option><option>RemoveTheFume</option><option>Both</option></select></div>
@@ -471,6 +470,20 @@ document.getElementById('profileFilter').addEventListener('change', e => {
   const count = document.getElementById('postsCount');
   count.textContent = val === 'Zyaam' ? '8' : val === 'Team Calendar' ? '6' : val === 'All Profiles' ? '20' : '12';
 });
+
+document.querySelectorAll('.edit-post').forEach(btn => {
+  btn.addEventListener('click', () => {
+    modal.style.display='flex';
+  });
+});
+document.querySelectorAll('.delete-post').forEach(btn => {
+  btn.addEventListener('click', () => {
+    if (confirm('Delete this scheduled post?')) {
+      btn.closest('tr').remove();
+    }
+  });
+});
+
 </script>
 </body>
 </html>
