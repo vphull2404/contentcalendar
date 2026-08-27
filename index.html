@@ -542,6 +542,36 @@ td:last-child{border-radius:0 12px 12px 0}
   .form-grid{grid-template-columns:1fr}
   .field.full{grid-column:auto}
 }
+
+/* Keep Prepare Now, Content Mix and Events together in the right column */
+.content-grid{
+  display:grid;
+  grid-template-columns:minmax(0,1fr) 330px;
+  gap:16px;
+  align-items:start;
+}
+.side-stack{
+  display:flex;
+  flex-direction:column;
+  gap:16px;
+  min-width:0;
+}
+.side-stack > *{
+  width:100%;
+  min-width:0;
+}
+@media(max-width:1180px){
+  .content-grid{grid-template-columns:minmax(0,1fr) 300px}
+  .side-stack{display:flex;grid-template-columns:none}
+}
+@media(max-width:900px){
+  .content-grid{grid-template-columns:1fr}
+  .side-stack{display:grid;grid-template-columns:1fr 1fr}
+}
+@media(max-width:620px){
+  .side-stack{grid-template-columns:1fr}
+}
+
 </style>
 </head>
 <body>
@@ -750,11 +780,6 @@ td:last-child{border-radius:0 12px 12px 0}
             <span class="badge">Prepare now</span>
             <h3>Labour Day</h3>
             <p>September 7, 2026. Creative planning window is open.</p>
-          </div>
-            <div class="progress-wrap">
-              <div class="progress-top"><span>Published</span><span>7</span></div>
-              <div class="progress"><span style="width:58%"></span></div>
-            </div>
           </div>
 
           <div class="panel glass">
