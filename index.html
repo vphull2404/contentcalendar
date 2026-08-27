@@ -361,6 +361,110 @@ td:last-child{border-radius:0 12px 12px 0}
   flex-shrink:0;
 }
 
+
+.glass-indicator{
+  width:34px;height:34px;border-radius:11px;display:inline-grid;place-items:center;position:relative;overflow:hidden;
+  background:linear-gradient(145deg,rgba(255,255,255,.8),rgba(255,255,255,.4));
+  border:1px solid rgba(255,255,255,.9);
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.95),0 7px 16px rgba(0,0,0,.08);
+  backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);vertical-align:middle;
+}
+.glass-indicator:before{content:"";position:absolute;width:20px;height:10px;left:3px;top:2px;border-radius:50%;background:rgba(255,255,255,.5);transform:rotate(-18deg)}
+.glass-indicator svg{width:18px;height:18px;fill:none;stroke:#202020;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round;position:relative;z-index:2}
+.priority-high svg{stroke-width:2.2}.priority-medium{opacity:.82}.priority-low{opacity:.62}
+.promo-paid{background:linear-gradient(145deg,rgba(255,203,31,.34),rgba(255,255,255,.52))}
+.promo-organic{background:linear-gradient(145deg,rgba(255,255,255,.82),rgba(234,234,234,.48))}
+.indicator-cell{text-align:center;white-space:nowrap}
+
+
+
+
+.glass-status{
+  width:76px;
+  height:28px;
+  padding:0 8px;
+  border-radius:10px;
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  gap:6px;
+  background:linear-gradient(145deg,rgba(255,255,255,.9),rgba(255,255,255,.5));
+  border:1px solid rgba(255,255,255,.96);
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,.98),
+    0 4px 10px rgba(0,0,0,.06);
+  backdrop-filter:blur(9px);
+  -webkit-backdrop-filter:blur(9px);
+  font-size:8px;
+  font-weight:950;
+  letter-spacing:.035em;
+  text-transform:uppercase;
+  white-space:nowrap;
+  color:#1d1d1d;
+}
+.glass-status svg{
+  width:13px;
+  height:13px;
+  min-width:13px;
+  fill:none;
+  stroke:#1d1d1d;
+  stroke-width:1.8;
+  stroke-linecap:round;
+  stroke-linejoin:round;
+}
+
+/* Priority color system */
+.glass-status.priority-high{
+  background:linear-gradient(145deg,rgba(114,196,120,.58),rgba(255,255,255,.72));
+  border-color:rgba(114,196,120,.36);
+}
+.glass-status.priority-medium{
+  background:linear-gradient(145deg,rgba(255,203,31,.60),rgba(255,255,255,.72));
+  border-color:rgba(255,203,31,.38);
+}
+.glass-status.priority-low{
+  background:linear-gradient(145deg,rgba(220,220,220,.76),rgba(255,255,255,.74));
+  border-color:rgba(180,180,180,.22);
+}
+
+/* Promotion badges remain neutral and consistent */
+.glass-status.promo-paid{
+  background:linear-gradient(145deg,rgba(210,210,210,.75),rgba(255,255,255,.72));
+}
+.glass-status.promo-organic{
+  background:linear-gradient(145deg,rgba(238,238,238,.86),rgba(255,255,255,.72));
+}
+
+/* Align the first two columns with their headers */
+#listView table th:nth-child(1),
+#listView table th:nth-child(2),
+#listView table td:nth-child(1),
+#listView table td:nth-child(2){
+  text-align:center;
+  vertical-align:middle;
+}
+#listView table th:nth-child(1),
+#listView table td:nth-child(1){
+  width:88px;
+  min-width:88px;
+  max-width:88px;
+}
+#listView table th:nth-child(2),
+#listView table td:nth-child(2){
+  width:96px;
+  min-width:96px;
+  max-width:96px;
+}
+.indicator-cell{
+  text-align:center;
+  vertical-align:middle;
+  white-space:nowrap;
+  padding-left:6px !important;
+  padding-right:6px !important;
+}
+
+
+
 @media(max-width:1180px){
   .scorecards{grid-template-columns:repeat(3,1fr)}
   .content-grid{grid-template-columns:1fr}
@@ -498,13 +602,7 @@ td:last-child{border-radius:0 12px 12px 0}
         <div class="score event current glass event-nav-card current-dark">
           <div class="label">Current Event</div>
           <div class="value" id="currentEventName">No active event</div>
-          <div class="sub" id="currentEventDate">August 2026</div>
-          <div class="event-nav-controls">
-            <button class="event-arrow" id="currentPrev" type="button" aria-label="Previous current event">‹</button>
-            <span class="event-counter" id="currentEventCounter">1 / 1</span>
-            <button class="event-arrow" id="currentNext" type="button" aria-label="Next current event">›</button>
-          </div>
-        </div>
+          <div class="sub" id="currentEventDate">August 2026</div></div>
         <div class="score event glass event-nav-card">
           <div class="label">Upcoming Event</div>
           <div class="value" id="upcomingEventName">Labour Day</div>
@@ -594,12 +692,12 @@ td:last-child{border-radius:0 12px 12px 0}
 
           <div class="table-view" id="listView">
             <table>
-              <thead><tr><th>Date</th><th>Platform</th><th>Topic</th><th>Brand</th><th>Owner</th><th>Language</th><th>Priority</th><th>Promotion Type</th><th>Status</th><th>Actions</th></tr></thead>
+              <thead><tr><th>Priority</th><th>Promotion</th><th>Date</th><th>Platform</th><th>Topic</th><th>Brand</th><th>Owner</th><th>Language</th><th>Status</th><th>Actions</th></tr></thead>
               <tbody>
-                <tr><td>Aug 26</td><td>LinkedIn</td><td>Labour Day prep</td><td>Plymovent</td><td>Varun</td><td>English</td><td>High</td><td>Organic</td><td><span class="status scheduled">Scheduled</span></td><td><div class="actions"><button class="action-btn edit-post">Edit</button><button class="action-btn delete delete-post">Delete</button></div></td></tr>
-                <tr><td>Aug 24</td><td>LinkedIn</td><td>Assessment CTA</td><td>Plymovent</td><td>Varun</td><td>English</td><td>Medium</td><td>Paid</td><td><span class="status published">Published</span></td><td>—</td></tr>
-                <tr><td>Aug 21</td><td>Facebook</td><td>FAQ</td><td>RTF</td><td>Varun</td><td>French</td><td>Low</td><td>Organic</td><td><span class="status published">Published</span></td><td>—</td></tr>
-                <tr><td>Aug 19</td><td>Instagram</td><td>Product reel</td><td>RTF</td><td>Varun</td><td>English</td><td>High</td><td>Organic</td><td><span class="status scheduled">Scheduled</span></td><td><div class="actions"><button class="action-btn edit-post">Edit</button><button class="action-btn delete delete-post">Delete</button></div></td></tr>
+                <tr><td class="indicator-cell"><span class="glass-status priority-high" title="Priority: High"><svg viewBox="0 0 20 20"><path d="M5 16V4"></path><path d="M5 5h7l2 2-2 2H5"></path><circle cx="14.5" cy="5.5" r="2.1"></circle></svg><span>High</span></span></td><td class="indicator-cell"><span class="glass-status promo-organic" title="Promotion: Organic"><svg viewBox="0 0 20 20"><path d="M10 16V9"></path><path d="M10 10c-3.8 0-5.5-2-5.5-5 3.7 0 5.5 2 5.5 5Z"></path><path d="M10 12c3.7 0 5.5-2 5.5-5-3.7 0-5.5 2-5.5 5Z"></path></svg><span>Organic</span></span></td><td>Aug 26</td><td>LinkedIn</td><td>Labour Day prep</td><td>Plymovent</td><td>Varun</td><td>English</td><td><span class="status scheduled">Scheduled</span></td><td><div class="actions"><button class="action-btn edit-post">Edit</button><button class="action-btn delete delete-post">Delete</button></div></td></tr>
+                <tr><td class="indicator-cell"><span class="glass-status priority-medium" title="Priority: Medium"><svg viewBox="0 0 20 20"><path d="M5 16V4"></path><path d="M5 5h7l2 2-2 2H5"></path><circle cx="14.5" cy="5.5" r="1.4"></circle></svg><span>Medium</span></span></td><td class="indicator-cell"><span class="glass-status promo-paid" title="Promotion: Paid"><svg viewBox="0 0 20 20"><path d="M4 11h3l7-4v6l-7-4H4z"></path><path d="M7 11l1.5 4"></path></svg><span>Paid</span></span></td><td>Aug 24</td><td>LinkedIn</td><td>Assessment CTA</td><td>Plymovent</td><td>Varun</td><td>English</td><td><span class="status published">Published</span></td><td>—</td></tr>
+                <tr><td class="indicator-cell"><span class="glass-status priority-low" title="Priority: Low"><svg viewBox="0 0 20 20"><path d="M5 16V4"></path><path d="M5 5h7l2 2-2 2H5"></path><circle cx="14.5" cy="5.5" r=".8"></circle></svg><span>Low</span></span></td><td class="indicator-cell"><span class="glass-status promo-organic" title="Promotion: Organic"><svg viewBox="0 0 20 20"><path d="M10 16V9"></path><path d="M10 10c-3.8 0-5.5-2-5.5-5 3.7 0 5.5 2 5.5 5Z"></path><path d="M10 12c3.7 0 5.5-2 5.5-5-3.7 0-5.5 2-5.5 5Z"></path></svg><span>Organic</span></span></td><td>Aug 21</td><td>Facebook</td><td>FAQ</td><td>RTF</td><td>Varun</td><td>French</td><td><span class="status published">Published</span></td><td>—</td></tr>
+                <tr><td class="indicator-cell"><span class="glass-status priority-high" title="Priority: High"><svg viewBox="0 0 20 20"><path d="M5 16V4"></path><path d="M5 5h7l2 2-2 2H5"></path><circle cx="14.5" cy="5.5" r="2.1"></circle></svg><span>High</span></span></td><td class="indicator-cell"><span class="glass-status promo-organic" title="Promotion: Organic"><svg viewBox="0 0 20 20"><path d="M10 16V9"></path><path d="M10 10c-3.8 0-5.5-2-5.5-5 3.7 0 5.5 2 5.5 5Z"></path><path d="M10 12c3.7 0 5.5-2 5.5-5-3.7 0-5.5 2-5.5 5Z"></path></svg><span>Organic</span></span></td><td>Aug 19</td><td>Instagram</td><td>Product reel</td><td>RTF</td><td>Varun</td><td>English</td><td><span class="status scheduled">Scheduled</span></td><td><div class="actions"><button class="action-btn edit-post">Edit</button><button class="action-btn delete delete-post">Delete</button></div></td></tr>
               </tbody>
             </table>
           </div>
@@ -973,7 +1071,7 @@ function renderCurrentEvent(){
   const e = currentEvents[currentEventIndex];
   document.getElementById('currentEventName').textContent = e.name;
   document.getElementById('currentEventDate').textContent = e.date;
-  document.getElementById('currentEventCounter').textContent = `${currentEventIndex + 1} / ${currentEvents.length}`;
+  const currentCounter = document.getElementById('currentEventCounter'); if(currentCounter) currentCounter.textContent = `${currentEventIndex + 1} / ${currentEvents.length}`;
 }
 function renderUpcomingEvent(){
   const e = upcomingEvents[upcomingEventIndex];
@@ -981,14 +1079,7 @@ function renderUpcomingEvent(){
   document.getElementById('upcomingEventDate').textContent = e.date;
   document.getElementById('upcomingEventCounter').textContent = `${upcomingEventIndex + 1} / ${upcomingEvents.length}`;
 }
-document.getElementById('currentPrev').onclick = () => {
-  currentEventIndex = (currentEventIndex - 1 + currentEvents.length) % currentEvents.length;
-  renderCurrentEvent();
-};
-document.getElementById('currentNext').onclick = () => {
-  currentEventIndex = (currentEventIndex + 1) % currentEvents.length;
-  renderCurrentEvent();
-};
+
 document.getElementById('upcomingPrev').onclick = () => {
   upcomingEventIndex = (upcomingEventIndex - 1 + upcomingEvents.length) % upcomingEvents.length;
   renderUpcomingEvent();
@@ -1147,6 +1238,27 @@ function setPostField(label, value){
   if(control) control.value = value || '';
 }
 
+
+function priorityIndicator(priority){
+  const p=(priority||'Low').toLowerCase();
+  const cls=p==='high'?'priority-high':p==='medium'?'priority-medium':'priority-low';
+  const marker=p==='high'
+    ? '<circle cx="14.5" cy="5.5" r="2.1"></circle>'
+    : p==='medium'
+      ? '<circle cx="14.5" cy="5.5" r="1.4"></circle>'
+      : '<circle cx="14.5" cy="5.5" r=".8"></circle>';
+  const icon=`<path d="M5 16V4"></path><path d="M5 5h7l2 2-2 2H5"></path>${marker}`;
+  return `<span class="glass-status ${cls}" title="Priority: ${priority||'Low'}"><svg viewBox="0 0 20 20">${icon}</svg><span>${priority||'Low'}</span></span>`;
+}
+function promotionIndicator(type){
+  const paid=(type||'Organic').toLowerCase()==='paid';
+  const icon=paid
+    ? '<path d="M4 11h3l7-4v6l-7-4H4z"></path><path d="M7 11l1.5 4"></path>'
+    : '<path d="M10 16V9"></path><path d="M10 10c-3.8 0-5.5-2-5.5-5 3.7 0 5.5 2 5.5 5Z"></path><path d="M10 12c3.7 0 5.5-2 5.5-5-3.7 0-5.5 2-5.5 5Z"></path>';
+  const label=paid?'Paid':'Organic';
+  return `<span class="glass-status ${paid?'promo-paid':'promo-organic'}" title="Promotion: ${label}"><svg viewBox="0 0 20 20">${icon}</svg><span>${label}</span></span>`;
+}
+
 function renderLocalPosts(){
   const tbody = document.querySelector('#listView tbody');
   if(!tbody) return;
@@ -1161,14 +1273,14 @@ function renderLocalPosts(){
       ? `<div class="actions"><button class="action-btn edit-local-post" type="button">Edit</button><button class="action-btn delete delete-local-post" type="button">Delete</button></div>`
       : '—';
     tr.innerHTML = `
+      <td class="indicator-cell">${priorityIndicator(post.priority)}</td>
+      <td class="indicator-cell">${promotionIndicator(post.promotionType)}</td>
       <td>${postDisplayDate(post.date)}</td>
       <td>${post.platform || '—'}</td>
       <td>${post.topic || 'Untitled'}</td>
       <td>${post.brand || '—'}</td>
       <td>${post.owner || '—'}</td>
       <td>${post.language || '—'}</td>
-      <td>${post.priority || '—'}</td>
-      <td>${post.promotionType || '—'}</td>
       <td><span class="status ${statusClass}">${post.status || 'Idea'}</span></td>
       <td>${actions}</td>`;
     tbody.prepend(tr);
