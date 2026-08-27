@@ -328,6 +328,39 @@ td:last-child{border-radius:0 12px 12px 0}
   background:rgba(255,255,255,.94);box-shadow:0 35px 100px rgba(0,0,0,.25)
 }
 
+
+/* Keep event scorecards fixed so longer event names never shift the dashboard */
+.score.event.event-nav-card{
+  height:170px;
+  min-height:170px;
+  max-height:170px;
+  display:flex;
+  flex-direction:column;
+}
+.score.event.event-nav-card .value{
+  min-height:46px;
+  max-height:46px;
+  overflow:hidden;
+  display:-webkit-box;
+  -webkit-line-clamp:2;
+  -webkit-box-orient:vertical;
+  line-height:1.16;
+  margin:14px 0 6px;
+}
+.score.event.event-nav-card .sub{
+  min-height:30px;
+  max-height:30px;
+  overflow:hidden;
+  display:-webkit-box;
+  -webkit-line-clamp:2;
+  -webkit-box-orient:vertical;
+  line-height:1.2;
+}
+.score.event.event-nav-card .event-nav-controls{
+  margin-top:auto;
+  flex-shrink:0;
+}
+
 @media(max-width:1180px){
   .scorecards{grid-template-columns:repeat(3,1fr)}
   .content-grid{grid-template-columns:1fr}
@@ -680,7 +713,7 @@ td:last-child{border-radius:0 12px 12px 0}
             <div class="setting-card"><b>Default Brand</b><div style="margin-top:9px"><select class="small-select"><option>Plymovent</option><option>RemoveTheFume</option><option>Both</option></select></div></div>
             <div class="setting-card"><b>Default Language</b><div style="margin-top:9px"><select class="small-select"><option>English</option><option>French</option></select></div></div>
             <div class="setting-card"><b>Monthly Post Target</b><div style="margin-top:9px"><input value="16" style="height:38px;border:1px solid #ddd;border-radius:10px;padding:0 10px"></div></div>
-            <div class="setting-card"><b>Default Visibility</b><div style="margin-top:9px"><select class="small-select"><option>Private</option><option>Team</option></select></div></div>
+            <div class="setting-card"><b>Default Visibility</b><div style="margin-top:9px"><select class="small-select"><option>Private</option><option>Team</option></select></div></div><div class="setting-card"><b>Local Backup</b><div class="sub" style="margin:6px 0 10px">Download posts, events and profiles saved in this browser.</div><button class="ghost-btn" id="exportBackupBtn">Export Backup</button></div>
           </div>
         </section>
       </div>
@@ -788,10 +821,7 @@ const modal = document.getElementById('modalBackdrop');
 document.getElementById('addContentBtn').onclick = () => modal.style.display='flex';
 document.getElementById('closeModal').onclick = document.getElementById('cancelModal').onclick = () => modal.style.display='none';
 modal.addEventListener('click', e => { if(e.target === modal) modal.style.display='none'; });
-document.getElementById('saveDraft').onclick = () => {
-  alert('First draft only: Firebase save will be connected in the next stage.');
-  modal.style.display='none';
-};
+
 document.getElementById('profileFilter').addEventListener('change', e => {
   const val = e.target.value;
   const count = document.getElementById('postsCount');
@@ -1052,6 +1082,272 @@ eventForm.addEventListener('submit', e => {
 });
 renderCurrentEvent();
 renderUpcomingEvent();
+
+
+const STORAGE_KEYS = {
+  posts: 'plymovent_calendar_posts_v1',
+  events: 'plymovent_calendar_events_v1',
+  profiles: 'plymovent_calendar_profiles_v1',
+  activeProfile: 'plymovent_calendar_active_profile_v1'
+};
+
+function loadJSON(key, fallback){
+  try {
+    const raw = localStorage.getItem(key);
+    return raw ? JSON.parse(raw) : fallback;
+  } catch(e){
+    return fallback;
+  }
+}
+function saveJSON(key, value){
+  localStorage.setItem(key, JSON.stringify(value));
+}
+
+let localPosts = loadJSON(STORAGE_KEYS.posts, []);
+let localEvents = loadJSON(STORAGE_KEYS.events, []);
+let localProfiles = loadJSON(STORAGE_KEYS.profiles, []);
+let activeLocalProfile = localStorage.getItem(STORAGE_KEYS.activeProfile) || 'Varun';
+
+function collectPostForm(){
+  const fields = [...document.querySelectorAll('#modalBackdrop .field')];
+  const getByLabel = (label) => {
+    const field = fields.find(f => f.querySelector('label')?.textContent.trim() === label);
+    const control = field?.querySelector('input,select,textarea');
+    return control ? control.value.trim() : '';
+  };
+  return {
+    id: 'post-' + Date.now(),
+    date: getByLabel('Date'),
+    owner: getByLabel('Owner'),
+    visibility: getByLabel('Visibility'),
+    brand: getByLabel('Brand'),
+    platform: getByLabel('Platform'),
+    topic: getByLabel('Post / Topic'),
+    contentType: getByLabel('Content Type'),
+    status: getByLabel('Status'),
+    language: getByLabel('Language'),
+    priority: getByLabel('Priority'),
+    promotionType: getByLabel('Promotion Type'),
+    notes: getByLabel('Caption / Notes'),
+    assetLink: getByLabel('Creative / Asset Link'),
+    createdAt: new Date().toISOString()
+  };
+}
+
+function postDisplayDate(value){
+  if(!value) return '—';
+  const [y,m,d] = value.split('-').map(Number);
+  return new Date(Date.UTC(y,m-1,d)).toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric',timeZone:'UTC'});
+}
+
+function setPostField(label, value){
+  const fields = [...document.querySelectorAll('#modalBackdrop .field')];
+  const field = fields.find(f => f.querySelector('label')?.textContent.trim() === label);
+  const control = field?.querySelector('input,select,textarea');
+  if(control) control.value = value || '';
+}
+
+function renderLocalPosts(){
+  const tbody = document.querySelector('#listView tbody');
+  if(!tbody) return;
+  tbody.querySelectorAll('tr[data-local-post="1"]').forEach(r => r.remove());
+
+  localPosts.forEach(post => {
+    const tr = document.createElement('tr');
+    tr.dataset.localPost = '1';
+    tr.dataset.postId = post.id;
+    const statusClass = post.status === 'Published' ? 'published' : 'scheduled';
+    const actions = post.status === 'Scheduled'
+      ? `<div class="actions"><button class="action-btn edit-local-post" type="button">Edit</button><button class="action-btn delete delete-local-post" type="button">Delete</button></div>`
+      : '—';
+    tr.innerHTML = `
+      <td>${postDisplayDate(post.date)}</td>
+      <td>${post.platform || '—'}</td>
+      <td>${post.topic || 'Untitled'}</td>
+      <td>${post.brand || '—'}</td>
+      <td>${post.owner || '—'}</td>
+      <td>${post.language || '—'}</td>
+      <td>${post.priority || '—'}</td>
+      <td>${post.promotionType || '—'}</td>
+      <td><span class="status ${statusClass}">${post.status || 'Idea'}</span></td>
+      <td>${actions}</td>`;
+    tbody.prepend(tr);
+  });
+
+  document.querySelectorAll('.delete-local-post').forEach(btn => {
+    btn.onclick = () => {
+      const id = btn.closest('tr').dataset.postId;
+      if(confirm('Delete this scheduled post?')){
+        localPosts = localPosts.filter(p => p.id !== id);
+        saveJSON(STORAGE_KEYS.posts, localPosts);
+        renderLocalPosts();
+      }
+    };
+  });
+
+  document.querySelectorAll('.edit-local-post').forEach(btn => {
+    btn.onclick = () => {
+      const id = btn.closest('tr').dataset.postId;
+      const post = localPosts.find(p => p.id === id);
+      if(!post) return;
+
+      setPostField('Date', post.date);
+      setPostField('Owner', post.owner);
+      setPostField('Visibility', post.visibility);
+      setPostField('Brand', post.brand);
+      setPostField('Platform', post.platform);
+      setPostField('Post / Topic', post.topic);
+      setPostField('Content Type', post.contentType);
+      setPostField('Status', post.status);
+      setPostField('Language', post.language);
+      setPostField('Priority', post.priority);
+      setPostField('Promotion Type', post.promotionType);
+      setPostField('Caption / Notes', post.notes);
+      setPostField('Creative / Asset Link', post.assetLink);
+
+      document.getElementById('saveDraft').dataset.editingPostId = id;
+      modal.style.display = 'flex';
+    };
+  });
+}
+
+document.getElementById('saveDraft').onclick = () => {
+  const post = collectPostForm();
+  const editId = document.getElementById('saveDraft').dataset.editingPostId || '';
+
+  if(!post.date){
+    alert('Please select a date.');
+    return;
+  }
+  if(!post.topic){
+    alert('Please enter a post or topic.');
+    return;
+  }
+
+  if(editId){
+    const idx = localPosts.findIndex(p => p.id === editId);
+    if(idx >= 0){
+      post.id = editId;
+      post.createdAt = localPosts[idx].createdAt;
+      localPosts[idx] = post;
+    }
+    delete document.getElementById('saveDraft').dataset.editingPostId;
+  } else {
+    localPosts.push(post);
+  }
+
+  saveJSON(STORAGE_KEYS.posts, localPosts);
+  renderLocalPosts();
+  modal.style.display = 'none';
+};
+
+function snapshotEventRows(){
+  return [...document.querySelectorAll('#eventTableBody tr')].map(row => ({
+    id: row.dataset.id || ('event-' + Date.now()),
+    date: row.children[0]?.textContent || '',
+    name: row.children[1]?.textContent || '',
+    category: row.children[2]?.textContent || '',
+    planning: row.children[3]?.textContent || '',
+    notes: row.children[4]?.textContent || ''
+  }));
+}
+
+function restoreEvents(){
+  if(!localEvents.length) return;
+  const tbody = document.getElementById('eventTableBody');
+  if(!tbody) return;
+  tbody.innerHTML = '';
+  localEvents.forEach(ev => {
+    const row = document.createElement('tr');
+    row.dataset.id = ev.id;
+    row.innerHTML = `
+      <td>${ev.date}</td><td>${ev.name}</td><td>${ev.category}</td><td>${ev.planning}</td><td>${ev.notes}</td>
+      <td><div class="event-actions"><button class="action-btn edit-event" type="button">Edit</button><button class="action-btn delete delete-event" type="button">Delete</button></div></td>`;
+    tbody.appendChild(row);
+  });
+  bindEventActions();
+}
+restoreEvents();
+
+eventForm.addEventListener('submit', () => {
+  setTimeout(() => {
+    localEvents = snapshotEventRows();
+    saveJSON(STORAGE_KEYS.events, localEvents);
+  }, 10);
+});
+
+document.addEventListener('click', e => {
+  if(e.target.classList.contains('delete-event')){
+    setTimeout(() => {
+      localEvents = snapshotEventRows();
+      saveJSON(STORAGE_KEYS.events, localEvents);
+    }, 10);
+  }
+});
+
+function persistProfiles(){
+  const profiles = [...document.querySelectorAll('.profile-item')].map(item => ({
+    name: item.dataset.name,
+    initials: item.dataset.initials,
+    image: item.querySelector('.mini-avatar')?.style.backgroundImage || ''
+  }));
+  saveJSON(STORAGE_KEYS.profiles, profiles);
+  localStorage.setItem(STORAGE_KEYS.activeProfile, activeProfileName.textContent);
+}
+
+function restoreProfiles(){
+  if(!localProfiles.length) return;
+  const list = document.getElementById('profileList');
+  list.innerHTML = '';
+  localProfiles.forEach(p => {
+    const btn = document.createElement('button');
+    btn.className = 'profile-item' + (p.name === activeLocalProfile ? ' active' : '');
+    btn.dataset.name = p.name;
+    btn.dataset.initials = p.initials;
+    btn.innerHTML = `<span class="mini-avatar">${p.initials || ''}</span><span><b>${p.name}</b><small>Profile</small></span>`;
+    if(p.image){
+      const av = btn.querySelector('.mini-avatar');
+      av.style.backgroundImage = p.image;
+      av.textContent = '';
+    }
+    list.appendChild(btn);
+  });
+  bindProfileItems();
+}
+restoreProfiles();
+
+saveProfileBtn.addEventListener('click', () => setTimeout(persistProfiles, 10));
+deleteProfileBtn.addEventListener('click', () => setTimeout(persistProfiles, 10));
+
+document.addEventListener('click', e => {
+  if(e.target.closest('.profile-item')){
+    setTimeout(() => localStorage.setItem(STORAGE_KEYS.activeProfile, activeProfileName.textContent), 10);
+  }
+});
+
+const exportBtn = document.getElementById('exportBackupBtn');
+if(exportBtn){
+  exportBtn.onclick = () => {
+    const payload = {
+      exportedAt: new Date().toISOString(),
+      posts: loadJSON(STORAGE_KEYS.posts, []),
+      events: loadJSON(STORAGE_KEYS.events, []),
+      profiles: loadJSON(STORAGE_KEYS.profiles, []),
+      activeProfile: localStorage.getItem(STORAGE_KEYS.activeProfile) || ''
+    };
+    const blob = new Blob([JSON.stringify(payload, null, 2)], {type:'application/json'});
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'plymovent-content-calendar-backup.json';
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+    URL.revokeObjectURL(url);
+  };
+}
+
+renderLocalPosts();
 
 </script>
 </body>
