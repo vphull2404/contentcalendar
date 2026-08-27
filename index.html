@@ -465,6 +465,20 @@ td:last-child{border-radius:0 12px 12px 0}
 
 
 
+
+/* Keep secondary workspace pages visually separated from the dashboard above */
+.page-section:not(#dashboardSection){
+  padding-top:28px;
+}
+.page-section:not(#dashboardSection) .section-panel{
+  margin-top:0;
+}
+@media(max-width:700px){
+  .page-section:not(#dashboardSection){
+    padding-top:20px;
+  }
+}
+
 @media(max-width:1180px){
   .scorecards{grid-template-columns:repeat(3,1fr)}
   .content-grid{grid-template-columns:1fr}
