@@ -652,6 +652,35 @@ td:last-child{border-radius:0 12px 12px 0}
   .score:hover:before{display:none}
 }
 
+
+.creator-badge{
+  width:26px;
+  height:26px;
+  border-radius:50%;
+  display:inline-grid;
+  place-items:center;
+  flex:0 0 auto;
+  font-size:8px;
+  font-weight:950;
+  letter-spacing:.03em;
+  color:#171717;
+  background:linear-gradient(145deg,rgba(255,203,31,.60),rgba(255,255,255,.72));
+  border:1px solid rgba(255,255,255,.95);
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.96),0 4px 10px rgba(0,0,0,.08);
+  backdrop-filter:blur(8px);
+  -webkit-backdrop-filter:blur(8px);
+}
+.creator-cell{text-align:center;vertical-align:middle}
+.post-chip-with-owner{
+  display:flex;
+  align-items:center;
+  gap:6px;
+}
+.post-chip-with-owner .post-chip{
+  flex:1;
+  min-width:0;
+}
+
 </style>
 </head>
 <body>
@@ -844,12 +873,12 @@ td:last-child{border-radius:0 12px 12px 0}
 
           <div class="table-view" id="listView">
             <table>
-              <thead><tr><th>Priority</th><th>Promotion</th><th>Date</th><th>Platform</th><th>Topic</th><th>Brand</th><th>Owner</th><th>Language</th><th>Status</th><th>Actions</th></tr></thead>
+              <thead><tr><th>Priority</th><th>Promotion</th><th>Created By</th><th>Date</th><th>Platform</th><th>Topic</th><th>Brand</th><th>Owner</th><th>Language</th><th>Status</th><th>Actions</th></tr></thead>
               <tbody>
-                <tr><td class="indicator-cell"><span class="glass-status priority-high" title="Priority: High"><svg viewBox="0 0 20 20"><path d="M5 16V4"></path><path d="M5 5h7l2 2-2 2H5"></path><circle cx="14.5" cy="5.5" r="2.1"></circle></svg><span>High</span></span></td><td class="indicator-cell"><span class="glass-status promo-organic" title="Promotion: Organic"><svg viewBox="0 0 20 20"><path d="M10 16V9"></path><path d="M10 10c-3.8 0-5.5-2-5.5-5 3.7 0 5.5 2 5.5 5Z"></path><path d="M10 12c3.7 0 5.5-2 5.5-5-3.7 0-5.5 2-5.5 5Z"></path></svg><span>Organic</span></span></td><td>Aug 26</td><td>LinkedIn</td><td>Labour Day prep</td><td>Plymovent</td><td>Varun</td><td>English</td><td><span class="status scheduled">Scheduled</span></td><td><div class="actions"><button class="action-btn edit-post">Edit</button><button class="action-btn delete delete-post">Delete</button></div></td></tr>
-                <tr><td class="indicator-cell"><span class="glass-status priority-medium" title="Priority: Medium"><svg viewBox="0 0 20 20"><path d="M5 16V4"></path><path d="M5 5h7l2 2-2 2H5"></path><circle cx="14.5" cy="5.5" r="1.4"></circle></svg><span>Medium</span></span></td><td class="indicator-cell"><span class="glass-status promo-paid" title="Promotion: Paid"><svg viewBox="0 0 20 20"><path d="M4 11h3l7-4v6l-7-4H4z"></path><path d="M7 11l1.5 4"></path></svg><span>Paid</span></span></td><td>Aug 24</td><td>LinkedIn</td><td>Assessment CTA</td><td>Plymovent</td><td>Varun</td><td>English</td><td><span class="status published">Published</span></td><td>—</td></tr>
-                <tr><td class="indicator-cell"><span class="glass-status priority-low" title="Priority: Low"><svg viewBox="0 0 20 20"><path d="M5 16V4"></path><path d="M5 5h7l2 2-2 2H5"></path><circle cx="14.5" cy="5.5" r=".8"></circle></svg><span>Low</span></span></td><td class="indicator-cell"><span class="glass-status promo-organic" title="Promotion: Organic"><svg viewBox="0 0 20 20"><path d="M10 16V9"></path><path d="M10 10c-3.8 0-5.5-2-5.5-5 3.7 0 5.5 2 5.5 5Z"></path><path d="M10 12c3.7 0 5.5-2 5.5-5-3.7 0-5.5 2-5.5 5Z"></path></svg><span>Organic</span></span></td><td>Aug 21</td><td>Facebook</td><td>FAQ</td><td>RTF</td><td>Varun</td><td>French</td><td><span class="status published">Published</span></td><td>—</td></tr>
-                <tr><td class="indicator-cell"><span class="glass-status priority-high" title="Priority: High"><svg viewBox="0 0 20 20"><path d="M5 16V4"></path><path d="M5 5h7l2 2-2 2H5"></path><circle cx="14.5" cy="5.5" r="2.1"></circle></svg><span>High</span></span></td><td class="indicator-cell"><span class="glass-status promo-organic" title="Promotion: Organic"><svg viewBox="0 0 20 20"><path d="M10 16V9"></path><path d="M10 10c-3.8 0-5.5-2-5.5-5 3.7 0 5.5 2 5.5 5Z"></path><path d="M10 12c3.7 0 5.5-2 5.5-5-3.7 0-5.5 2-5.5 5Z"></path></svg><span>Organic</span></span></td><td>Aug 19</td><td>Instagram</td><td>Product reel</td><td>RTF</td><td>Varun</td><td>English</td><td><span class="status scheduled">Scheduled</span></td><td><div class="actions"><button class="action-btn edit-post">Edit</button><button class="action-btn delete delete-post">Delete</button></div></td></tr>
+                <tr><td class="indicator-cell"><span class="glass-status priority-high" title="Priority: High"><svg viewBox="0 0 20 20"><path d="M5 16V4"></path><path d="M5 5h7l2 2-2 2H5"></path><circle cx="14.5" cy="5.5" r="2.1"></circle></svg><span>High</span></span></td><td class="indicator-cell"><span class="glass-status promo-organic" title="Promotion: Organic"><svg viewBox="0 0 20 20"><path d="M10 16V9"></path><path d="M10 10c-3.8 0-5.5-2-5.5-5 3.7 0 5.5 2 5.5 5Z"></path><path d="M10 12c3.7 0 5.5-2 5.5-5-3.7 0-5.5 2-5.5 5Z"></path></svg><span>Organic</span></span></td><td class="creator-cell"><span class="creator-badge" title="Added by Varun">V</span></td><td>Aug 26</td><td>LinkedIn</td><td>Labour Day prep</td><td>Plymovent</td><td>Varun</td><td>English</td><td><span class="status scheduled">Scheduled</span></td><td><div class="actions"><button class="action-btn edit-post">Edit</button><button class="action-btn delete delete-post">Delete</button></div></td></tr>
+                <tr><td class="indicator-cell"><span class="glass-status priority-medium" title="Priority: Medium"><svg viewBox="0 0 20 20"><path d="M5 16V4"></path><path d="M5 5h7l2 2-2 2H5"></path><circle cx="14.5" cy="5.5" r="1.4"></circle></svg><span>Medium</span></span></td><td class="indicator-cell"><span class="glass-status promo-paid" title="Promotion: Paid"><svg viewBox="0 0 20 20"><path d="M4 11h3l7-4v6l-7-4H4z"></path><path d="M7 11l1.5 4"></path></svg><span>Paid</span></span></td><td class="creator-cell"><span class="creator-badge" title="Added by Varun">V</span></td><td>Aug 24</td><td>LinkedIn</td><td>Assessment CTA</td><td>Plymovent</td><td>Varun</td><td>English</td><td><span class="status published">Published</span></td><td>—</td></tr>
+                <tr><td class="indicator-cell"><span class="glass-status priority-low" title="Priority: Low"><svg viewBox="0 0 20 20"><path d="M5 16V4"></path><path d="M5 5h7l2 2-2 2H5"></path><circle cx="14.5" cy="5.5" r=".8"></circle></svg><span>Low</span></span></td><td class="indicator-cell"><span class="glass-status promo-organic" title="Promotion: Organic"><svg viewBox="0 0 20 20"><path d="M10 16V9"></path><path d="M10 10c-3.8 0-5.5-2-5.5-5 3.7 0 5.5 2 5.5 5Z"></path><path d="M10 12c3.7 0 5.5-2 5.5-5-3.7 0-5.5 2-5.5 5Z"></path></svg><span>Organic</span></span></td><td class="creator-cell"><span class="creator-badge" title="Added by Varun">V</span></td><td>Aug 21</td><td>Facebook</td><td>FAQ</td><td>RTF</td><td>Varun</td><td>French</td><td><span class="status published">Published</span></td><td>—</td></tr>
+                <tr><td class="indicator-cell"><span class="glass-status priority-high" title="Priority: High"><svg viewBox="0 0 20 20"><path d="M5 16V4"></path><path d="M5 5h7l2 2-2 2H5"></path><circle cx="14.5" cy="5.5" r="2.1"></circle></svg><span>High</span></span></td><td class="indicator-cell"><span class="glass-status promo-organic" title="Promotion: Organic"><svg viewBox="0 0 20 20"><path d="M10 16V9"></path><path d="M10 10c-3.8 0-5.5-2-5.5-5 3.7 0 5.5 2 5.5 5Z"></path><path d="M10 12c3.7 0 5.5-2 5.5-5-3.7 0-5.5 2-5.5 5Z"></path></svg><span>Organic</span></span></td><td class="creator-cell"><span class="creator-badge" title="Added by Varun">V</span></td><td>Aug 19</td><td>Instagram</td><td>Product reel</td><td>RTF</td><td>Varun</td><td>English</td><td><span class="status scheduled">Scheduled</span></td><td><div class="actions"><button class="action-btn edit-post">Edit</button><button class="action-btn delete delete-post">Delete</button></div></td></tr>
               </tbody>
             </table>
           </div>
@@ -1376,6 +1405,11 @@ function collectPostForm(){
     promotionType: getByLabel('Promotion Type'),
     notes: getByLabel('Caption / Notes'),
     assetLink: getByLabel('Creative / Asset Link'),
+    creatorName: activeProfileName?.textContent || activeLocalProfile || 'Varun',
+    creatorInitials: (() => {
+      const name = activeProfileName?.textContent || activeLocalProfile || 'Varun';
+      return name.split(/\s+/).map(x => x[0]).join('').slice(0,2).toUpperCase();
+    })(),
     createdAt: new Date().toISOString()
   };
 }
@@ -1414,12 +1448,24 @@ function promotionIndicator(type){
   return `<span class="glass-status ${paid?'promo-paid':'promo-organic'}" title="Promotion: ${label}"><svg viewBox="0 0 20 20">${icon}</svg><span>${label}</span></span>`;
 }
 
+
+function creatorBadge(post){
+  const initials = post.creatorInitials || (post.creatorName || post.owner || 'NA')
+    .split(/\s+/).map(x => x[0]).join('').slice(0,2).toUpperCase();
+  const label = post.creatorName || post.owner || 'Unknown';
+  return `<span class="creator-badge" title="Added by ${label}" aria-label="Added by ${label}">${initials}</span>`;
+}
+
 function renderLocalPosts(){
   const tbody = document.querySelector('#listView tbody');
   if(!tbody) return;
   tbody.querySelectorAll('tr[data-local-post="1"]').forEach(r => r.remove());
 
   localPosts.forEach(post => {
+    if(!post.creatorName){
+      post.creatorName = post.owner || 'Unknown';
+      post.creatorInitials = (post.creatorName || 'NA').split(/\s+/).map(x => x[0]).join('').slice(0,2).toUpperCase();
+    }
     const tr = document.createElement('tr');
     tr.dataset.localPost = '1';
     tr.dataset.postId = post.id;
@@ -1430,6 +1476,7 @@ function renderLocalPosts(){
     tr.innerHTML = `
       <td class="indicator-cell">${priorityIndicator(post.priority)}</td>
       <td class="indicator-cell">${promotionIndicator(post.promotionType)}</td>
+      <td class="creator-cell">${creatorBadge(post)}</td>
       <td>${postDisplayDate(post.date)}</td>
       <td>${post.platform || '—'}</td>
       <td>${post.topic || 'Untitled'}</td>
@@ -1496,6 +1543,8 @@ document.getElementById('saveDraft').onclick = () => {
     if(idx >= 0){
       post.id = editId;
       post.createdAt = localPosts[idx].createdAt;
+      post.creatorName = localPosts[idx].creatorName || post.creatorName;
+      post.creatorInitials = localPosts[idx].creatorInitials || post.creatorInitials;
       localPosts[idx] = post;
     }
     delete document.getElementById('saveDraft').dataset.editingPostId;
@@ -1671,6 +1720,11 @@ function updateDynamicCalendarTitle(){
   title.textContent = `${month}'${year} - Content Calendar`;
 }
 updateDynamicCalendarTitle();
+
+
+function calendarChipWithCreator(post, text, extraClass=''){
+  return `<div class="post-chip-with-owner"><span class="creator-badge">${post.creatorInitials || 'NA'}</span><div class="post-chip ${extraClass}">${text}</div></div>`;
+}
 
 </script>
 </body>
