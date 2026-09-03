@@ -1251,6 +1251,35 @@ td:last-child{border-radius:0 12px 12px 0}
   font-size:12px;
 }
 
+
+.hashtag-row-actions{
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  gap:6px;
+}
+.hashtag-edit-btn,
+.hashtag-delete-btn{
+  min-width:48px;
+  height:28px;
+  padding:0 8px;
+  border-radius:8px;
+  font:inherit;
+  font-size:9px;
+  font-weight:900;
+  cursor:pointer;
+}
+.hashtag-edit-btn{
+  border:1px solid rgba(0,0,0,.09);
+  background:#fff;
+  color:#222;
+}
+.hashtag-delete-btn{
+  border:1px solid #1d1d1d;
+  background:#1d1d1d;
+  color:#fff;
+}
+
 </style>
 </head>
 <body>
@@ -1727,8 +1756,9 @@ td:last-child{border-radius:0 12px 12px 0}
 
 <div class="modal-backdrop" id="hashtagModalBackdrop">
   <div class="modal">
+    <input type="hidden" id="editingHashtagKey">
     <div class="modal-head">
-      <div><div class="eyebrow">LinkedIn hashtag library</div><h2>Add Hashtag</h2></div>
+      <div><div class="eyebrow">Hashtag library</div><h2 id="hashtagModalTitle">Add Hashtag</h2></div>
       <button class="icon-btn" id="closeHashtagModal">×</button>
     </div>
 
@@ -2513,6 +2543,41 @@ const instagramHashtags = [{"hashtag": "#dougdougthewelder", "category": "Weldin
 
 const HASHTAG_STORAGE_KEY = 'plymovent_linkedin_custom_hashtags_v1';
 
+const HASHTAG_OVERRIDE_KEY = 'plymovent_hashtag_overrides_v1';
+const HASHTAG_DELETED_KEY = 'plymovent_hashtag_deleted_v1';
+
+function loadHashtagOverrides(){
+  try { return JSON.parse(localStorage.getItem(HASHTAG_OVERRIDE_KEY) || '{}'); }
+  catch(e){ return {}; }
+}
+function saveHashtagOverrides(obj){
+  localStorage.setItem(HASHTAG_OVERRIDE_KEY, JSON.stringify(obj));
+}
+function loadDeletedHashtags(){
+  try { return JSON.parse(localStorage.getItem(HASHTAG_DELETED_KEY) || '[]'); }
+  catch(e){ return []; }
+}
+function saveDeletedHashtags(arr){
+  localStorage.setItem(HASHTAG_DELETED_KEY, JSON.stringify(arr));
+}
+
+let hashtagOverrides = loadHashtagOverrides();
+let deletedHashtags = loadDeletedHashtags();
+
+function hashtagRecordKey(item){
+  return `${(item.socialMedia || 'LinkedIn').toLowerCase()}::${item.hashtag.toLowerCase()}`;
+}
+
+function applyHashtagOverrides(items){
+  return items
+    .filter(item => !deletedHashtags.includes(hashtagRecordKey(item)))
+    .map(item => {
+      const key = hashtagRecordKey(item);
+      return hashtagOverrides[key] ? {...item, ...hashtagOverrides[key]} : item;
+    });
+}
+
+
 function loadCustomLinkedinHashtags(){
   try{
     const raw = localStorage.getItem(HASHTAG_STORAGE_KEY);
@@ -2527,11 +2592,12 @@ function saveCustomLinkedinHashtags(){
 let customLinkedinHashtags = loadCustomLinkedinHashtags();
 
 function allLinkedinHashtags(){
-  return [
+  const combined = [
     ...linkedinHashtags.map(item => ({...item, socialMedia:item.socialMedia || 'LinkedIn', custom:false})),
-    ...instagramHashtags.map(item => ({...item, socialMedia:'Instagram', custom:false})),
+    ...(typeof instagramHashtags !== 'undefined' ? instagramHashtags.map(item => ({...item, socialMedia:item.socialMedia || 'Instagram', custom:false})) : []),
     ...customLinkedinHashtags.map(item => ({...item, socialMedia:item.socialMedia || 'LinkedIn', custom:true}))
   ];
+  return applyHashtagOverrides(combined);
 }
 
 
@@ -2583,7 +2649,20 @@ function renderLinkedinHashtags(){
       <td><span class="hashtag-category">${item.category}</span></td>
       <td><span class="social-media-pill">${item.socialMedia || 'LinkedIn'}</span></td>
       <td><span class="hashtag-followers">${formatFollowerCount(item.followers)}</span></td>
-      <td>${item.custom ? `<button class="hashtag-delete-btn" data-hashtag-id="${item.id}">Delete</button>` : '—'}</td>
+      <td>
+        <div class="hashtag-row-actions">
+          <button class="hashtag-edit-btn" 
+            data-key="${hashtagRecordKey(item)}"
+            data-hashtag="${item.hashtag}"
+            data-category="${item.category}"
+            data-social="${item.socialMedia || 'LinkedIn'}"
+            data-followers="${item.followers}">Edit</button>
+          <button class="hashtag-delete-btn"
+            data-key="${hashtagRecordKey(item)}"
+            data-custom="${item.custom ? '1' : '0'}"
+            data-hashtag-id="${item.id || ''}">Delete</button>
+        </div>
+      </td>
     </tr>
   `).join('');
 
@@ -2592,17 +2671,40 @@ function renderLinkedinHashtags(){
   const empty = document.getElementById('hashtagsEmpty');
   if(empty) empty.style.display = filtered.length ? 'none' : 'block';
 
+  document.querySelectorAll('.hashtag-edit-btn').forEach(btn => {
+    btn.onclick = () => {
+      const key = btn.dataset.key;
+      document.getElementById('editingHashtagKey').value = key;
+      document.getElementById('hashtagModalTitle').textContent = 'Edit Hashtag';
+      document.getElementById('newHashtagInput').value = btn.dataset.hashtag || '';
+      document.getElementById('newHashtagCategory').value = btn.dataset.category || 'Uncategorized';
+      const social = document.getElementById('newHashtagSocialMedia');
+      if(social) social.value = btn.dataset.social || 'LinkedIn';
+      document.getElementById('newHashtagFollowers').value = btn.dataset.followers || '0';
+      hashtagModal.style.display = 'flex';
+    };
+  });
+
   document.querySelectorAll('.hashtag-delete-btn').forEach(btn => {
     btn.onclick = () => {
-      const id = btn.dataset.hashtagId;
-      const item = customLinkedinHashtags.find(x => x.id === id);
+      const key = btn.dataset.key;
+      const item = allLinkedinHashtags().find(x => hashtagRecordKey(x) === key);
       if(!item) return;
-      if(confirm(`Delete ${item.hashtag}?`)){
-        customLinkedinHashtags = customLinkedinHashtags.filter(x => x.id !== id);
+      if(!confirm(`Delete ${item.hashtag} from ${item.socialMedia || 'LinkedIn'}?`)) return;
+
+      if(btn.dataset.custom === '1'){
+        customLinkedinHashtags = customLinkedinHashtags.filter(x => hashtagRecordKey(x) !== key);
         saveCustomLinkedinHashtags();
-        rebuildHashtagCategoryFilter();
-        renderLinkedinHashtags();
+      }else{
+        if(!deletedHashtags.includes(key)) deletedHashtags.push(key);
+        saveDeletedHashtags(deletedHashtags);
       }
+
+      delete hashtagOverrides[key];
+      saveHashtagOverrides(hashtagOverrides);
+
+      rebuildHashtagCategoryFilter();
+      renderLinkedinHashtags();
     };
   });
 }
@@ -2638,6 +2740,8 @@ const cancelHashtagModal = document.getElementById('cancelHashtagModal');
 const saveHashtagBtn = document.getElementById('saveHashtagBtn');
 
 addHashtagBtn?.addEventListener('click', () => {
+  document.getElementById('editingHashtagKey').value = '';
+  document.getElementById('hashtagModalTitle').textContent = 'Add Hashtag';
   document.getElementById('newHashtagInput').value = '';
   document.getElementById('newHashtagFollowers').value = '';
   const socialSelect = document.getElementById('newHashtagSocialMedia');
@@ -2657,6 +2761,7 @@ saveHashtagBtn?.addEventListener('click', () => {
   const socialMedia = document.getElementById('newHashtagSocialMedia')?.value || 'LinkedIn';
   const followersRaw = document.getElementById('newHashtagFollowers').value.trim();
   const followers = Number(followersRaw);
+  const editingKey = document.getElementById('editingHashtagKey').value;
 
   if(!hashtag){
     alert('Please enter a hashtag.');
@@ -2664,28 +2769,61 @@ saveHashtagBtn?.addEventListener('click', () => {
   }
   if(!hashtag.startsWith('#')) hashtag = '#' + hashtag;
   if(!Number.isFinite(followers) || followers < 0){
-    alert('Please enter a valid follower count.');
+    alert('Please enter a valid follower/post count.');
     return;
   }
 
-  const exists = allLinkedinHashtags().some(x =>
-    x.hashtag.toLowerCase() === hashtag.toLowerCase() &&
-    (x.socialMedia || 'LinkedIn') === socialMedia
-  );
-  if(exists){
-    alert(`This hashtag already exists for ${socialMedia}.`);
-    return;
+  const newKey = `${socialMedia.toLowerCase()}::${hashtag.toLowerCase()}`;
+
+  if(editingKey){
+    const existsOther = allLinkedinHashtags().some(x =>
+      hashtagRecordKey(x) === newKey && hashtagRecordKey(x) !== editingKey
+    );
+    if(existsOther){
+      alert(`This hashtag already exists for ${socialMedia}.`);
+      return;
+    }
+
+    const original = allLinkedinHashtags().find(x => hashtagRecordKey(x) === editingKey);
+    if(!original) return;
+
+    if(original.custom){
+      const idx = customLinkedinHashtags.findIndex(x => hashtagRecordKey(x) === editingKey);
+      if(idx >= 0){
+        customLinkedinHashtags[idx] = {
+          ...customLinkedinHashtags[idx],
+          hashtag, category, followers, socialMedia
+        };
+        saveCustomLinkedinHashtags();
+      }
+    }else{
+      if(newKey !== editingKey){
+        if(!deletedHashtags.includes(editingKey)) deletedHashtags.push(editingKey);
+        saveDeletedHashtags(deletedHashtags);
+      }
+      hashtagOverrides[newKey] = {
+        hashtag, category, followers, socialMedia
+      };
+      saveHashtagOverrides(hashtagOverrides);
+    }
+  }else{
+    const exists = allLinkedinHashtags().some(x => hashtagRecordKey(x) === newKey);
+    if(exists){
+      alert(`This hashtag already exists for ${socialMedia}.`);
+      return;
+    }
+
+    customLinkedinHashtags.push({
+      id: 'custom-' + Date.now(),
+      hashtag,
+      category,
+      followers,
+      socialMedia
+    });
+    saveCustomLinkedinHashtags();
   }
 
-  customLinkedinHashtags.push({
-    id: 'custom-' + Date.now(),
-    hashtag,
-    category,
-    followers,
-    socialMedia
-  });
-
-  saveCustomLinkedinHashtags();
+  document.getElementById('editingHashtagKey').value = '';
   rebuildHashtagCategoryFilter();
   renderLinkedinHashtags();
   hashtagModal.style.display = 'none';
