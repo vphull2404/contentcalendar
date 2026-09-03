@@ -927,6 +927,108 @@ td:last-child{border-radius:0 12px 12px 0}
   background:rgba(255,255,255,.78) !important;
 }
 
+
+/* Secondary pages: match the Dashboard's white/neutral workspace */
+#hashtagsLinkedinSection,
+#calendarSection,
+#ideasSection,
+#eventsSection,
+#assetsSection,
+#settingsSection{
+  background:transparent !important;
+}
+
+#hashtagsLinkedinSection .section-panel,
+#calendarSection .section-panel,
+#ideasSection .section-panel,
+#eventsSection .section-panel,
+#assetsSection .section-panel,
+#settingsSection .section-panel{
+  background:#fff !important;
+  border:1px solid rgba(0,0,0,.055) !important;
+  box-shadow:0 10px 28px rgba(0,0,0,.045) !important;
+}
+
+/* Remove the yellow/cream cast specifically from the Hashtags workspace */
+#hashtagsLinkedinSection .hashtags-panel{
+  background:#fff !important;
+}
+
+#hashtagsLinkedinSection .hashtags-table td{
+  background:#fff !important;
+  border-color:rgba(0,0,0,.055) !important;
+}
+
+#hashtagsLinkedinSection .hashtags-toolbar select,
+#hashtagsLinkedinSection .hashtags-toolbar input{
+  background:#fff !important;
+  border-color:rgba(0,0,0,.09) !important;
+}
+
+#hashtagsLinkedinSection .hashtags-count-card{
+  background:#fff !important;
+  border:1px solid rgba(0,0,0,.06) !important;
+  box-shadow:0 8px 20px rgba(0,0,0,.04) !important;
+}
+
+#hashtagsLinkedinSection .hashtag-followers,
+#hashtagsLinkedinSection .social-media-pill{
+  background:#fff !important;
+}
+
+/* Keep Plymovent yellow only as an accent, like Dashboard */
+#hashtagsLinkedinSection .primary-btn{
+  background:#ffc514 !important;
+}
+
+
+/* Hashtag header actions: matching landscape controls */
+.hashtags-head-actions{
+  display:flex;
+  align-items:center;
+  gap:10px;
+  flex-wrap:wrap;
+}
+.hashtags-count-card,
+#addHashtagBtn{
+  height:48px;
+  min-width:152px;
+  border-radius:13px;
+}
+.hashtags-count-card{
+  padding:0 14px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  gap:10px;
+  background:#fff !important;
+  border:1px solid rgba(0,0,0,.065) !important;
+  box-shadow:0 7px 18px rgba(0,0,0,.045) !important;
+  text-align:left;
+}
+.hashtags-count-card span{
+  display:inline;
+  margin:0;
+  font-size:9px;
+  font-weight:900;
+  text-transform:uppercase;
+  letter-spacing:.075em;
+  color:#777;
+  white-space:nowrap;
+}
+.hashtags-count-card b{
+  display:inline;
+  margin:0;
+  font-size:20px;
+  line-height:1;
+}
+#addHashtagBtn{
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  padding:0 18px;
+}
+
 </style>
 </head>
 <body>
@@ -1356,6 +1458,20 @@ td:last-child{border-radius:0 12px 12px 0}
           <option>Miscellaneous</option>
           <option>Uncategorized</option>
           <option>Other / N/A</option>
+        </select>
+      </div>
+
+      <div class="field">
+        <label>Social Media</label>
+        <select id="newHashtagSocialMedia">
+          <option value="LinkedIn">LinkedIn</option>
+          <option value="Facebook">Facebook</option>
+          <option value="Instagram">Instagram</option>
+          <option value="Twitter / X">Twitter / X</option>
+          <option value="YouTube">YouTube</option>
+          <option value="TikTok">TikTok</option>
+          <option value="WhatsApp">WhatsApp</option>
+          <option value="Other">Other</option>
         </select>
       </div>
       <div class="field">
@@ -2226,6 +2342,8 @@ const saveHashtagBtn = document.getElementById('saveHashtagBtn');
 addHashtagBtn?.addEventListener('click', () => {
   document.getElementById('newHashtagInput').value = '';
   document.getElementById('newHashtagFollowers').value = '';
+  const socialSelect = document.getElementById('newHashtagSocialMedia');
+  if(socialSelect) socialSelect.value = 'LinkedIn';
   hashtagModal.style.display = 'flex';
 });
 
@@ -2238,6 +2356,7 @@ hashtagModal?.addEventListener('click', e => {
 saveHashtagBtn?.addEventListener('click', () => {
   let hashtag = document.getElementById('newHashtagInput').value.trim();
   const category = document.getElementById('newHashtagCategory').value;
+  const socialMedia = document.getElementById('newHashtagSocialMedia')?.value || 'LinkedIn';
   const followersRaw = document.getElementById('newHashtagFollowers').value.trim();
   const followers = Number(followersRaw);
 
@@ -2262,7 +2381,7 @@ saveHashtagBtn?.addEventListener('click', () => {
     hashtag,
     category,
     followers,
-    socialMedia: 'LinkedIn'
+    socialMedia
   });
 
   saveCustomLinkedinHashtags();
