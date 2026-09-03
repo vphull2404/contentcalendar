@@ -663,7 +663,7 @@ td:last-child{border-radius:0 12px 12px 0}
       <section class="hero">
         <div>
           <div class="eyebrow">Marketing workspace</div>
-          <h1>Content Calendar</h1>
+          <h1 id="dynamicCalendarTitle">Content Calendar</h1>
           <p>Plan, schedule and coordinate content across your profiles.</p>
         </div>
         <button class="primary-btn" id="addContentBtn">＋ Add Content</button>
@@ -1592,6 +1592,19 @@ document.getElementById('eventsMonthNext')?.addEventListener('click',()=>{events
 eventForm.addEventListener('submit',()=>setTimeout(renderMonthlyEvents,30));
 document.addEventListener('click',e=>{if(e.target.classList.contains('delete-event'))setTimeout(renderMonthlyEvents,30);});
 renderMonthlyEvents();
+
+
+function updateDynamicCalendarTitle(){
+  const title = document.getElementById('dynamicCalendarTitle');
+  if(!title) return;
+
+  const now = new Date();
+  const month = now.toLocaleDateString('en-US', {month:'long'});
+  const year = String(now.getFullYear()).slice(-2);
+
+  title.textContent = `${month}'${year} - Content Calendar`;
+}
+updateDynamicCalendarTitle();
 
 </script>
 </body>
