@@ -466,17 +466,16 @@ td:last-child{border-radius:0 12px 12px 0}
 
 
 
-/* Keep secondary workspace pages visually separated from the dashboard above */
+/* All workspace tabs use the same content origin */
+.page-section{
+  display:none;
+  width:100%;
+}
+.page-section.active{
+  display:block;
+}
 .page-section:not(#dashboardSection){
-  padding-top:28px;
-}
-.page-section:not(#dashboardSection) .section-panel{
-  margin-top:0;
-}
-@media(max-width:700px){
-  .page-section:not(#dashboardSection){
-    padding-top:20px;
-  }
+  padding-top:0;
 }
 
 
@@ -757,6 +756,32 @@ td:last-child{border-radius:0 12px 12px 0}
   background:#000;
 }
 
+
+.workspace-page{
+  width:100%;
+}
+.workspace-page .section-panel{
+  margin-top:10px;
+}
+.workspace-page-head{
+  display:flex;
+  align-items:flex-start;
+  justify-content:space-between;
+  gap:18px;
+  margin:10px 2px 18px;
+}
+.workspace-page-head h1{
+  margin:0;
+  font-size:clamp(30px,4vw,46px);
+  line-height:1;
+  letter-spacing:-.04em;
+}
+.workspace-page-head p{
+  margin:8px 0 0;
+  color:var(--muted);
+  font-size:14px;
+}
+
 </style>
 </head>
 <body>
@@ -993,20 +1018,25 @@ td:last-child{border-radius:0 12px 12px 0}
   </div>
   <div class="compact-events-list" id="compactEventsList"></div>
 </div>
-</div>
         </aside>
       </section>
       </div>
 
 
 
-      <div id="hashtagsLinkedinSection" class="page-section">
+      <div id="hashtagsLinkedinSection" class="page-section workspace-page">
+        <div class="workspace-page-head">
+          <div>
+            <div class="eyebrow">LinkedIn reference library</div>
+            <h1>HASHTAGS - LINKEDIN</h1>
+            <p>Browse, filter and maintain the LinkedIn hashtag library.</p>
+          </div>
+        </div>
         <section class="section-panel glass hashtags-panel">
           <div class="hashtags-head">
             <div>
-              <div class="eyebrow">LinkedIn reference library</div>
-              <h2>HASHTAGS - LINKEDIN</h2>
-              <p>Use the filters to quickly find relevant LinkedIn hashtags by category and follower size.</p>
+              <h2>Hashtag Library</h2>
+              <p>Use the filters to find hashtags by category and follower size.</p>
             </div>
             <div class="hashtags-head-actions">
               <div class="hashtags-count-card">
@@ -1057,16 +1087,27 @@ td:last-child{border-radius:0 12px 12px 0}
         </section>
       </div>
 
-      <div id="calendarSection" class="page-section">
+      <div id="calendarSection" class="page-section workspace-page">
+        <div class="workspace-page-head">
+          <div>
+            <div class="eyebrow">Workspace</div>
+            <h1>Content Calendar</h1>
+            <p>Focused calendar planning view.</p>
+          </div>
+          <button class="primary-btn" id="calendarAddContentBtn">＋ Add Content</button>
+        </div>
         <section class="section-panel glass">
-          <div class="eyebrow">Workspace</div>
-          <h2>Content Calendar</h2>
-          <p>This section will use the same live calendar data, with a focused full-width planning view.</p>
-          <button class="primary-btn" onclick="document.querySelector('[data-target=dashboardSection]').click()">Open Dashboard Calendar</button>
+          <div class="panel-head">
+            <div>
+              <h2>Calendar Workspace</h2>
+              <span>Use Dashboard for the full calendar, scorecards and content mix.</span>
+            </div>
+          </div>
+          <button class="ghost-btn" id="openDashboardCalendarBtn">Open Full Calendar</button>
         </section>
       </div>
 
-      <div id="ideasSection" class="page-section">
+      <div id="ideasSection" class="page-section workspace-page">
         <section class="section-panel glass">
           <div class="eyebrow">Planning</div>
           <h2>Ideas Bank</h2>
@@ -1075,13 +1116,19 @@ td:last-child{border-radius:0 12px 12px 0}
         </section>
       </div>
 
-      <div id="eventsSection" class="page-section">
+      <div id="eventsSection" class="page-section workspace-page">
+        <div class="workspace-page-head">
+          <div>
+            <div class="eyebrow">Annual planning</div>
+            <h1>Events</h1>
+            <p>Add, edit and manage awareness dates and industry events.</p>
+          </div>
+        </div>
         <section class="section-panel glass">
           <div class="event-manager-head">
             <div>
-              <div class="eyebrow">Annual planning</div>
-              <h2>Events</h2>
-              <p>Add, edit or delete awareness dates, special days, campaigns and industry events.</p>
+              <h2>Event Library</h2>
+              <p>Manage all saved events here.</p>
             </div>
             <button class="primary-btn" id="addEventBtn">＋ Add Event</button>
           </div>
@@ -1114,14 +1161,14 @@ td:last-child{border-radius:0 12px 12px 0}
         </section>
       </div>
 
-      <div id="assetsSection" class="page-section">
+      <div id="assetsSection" class="page-section workspace-page">
         <section class="section-panel glass">
           <div class="eyebrow">Resources</div>
           <h2>Assets & Links</h2>
           <p>Approved creative links, landing pages, UTM links and reusable assets will live here.</p>
         </section>
       </div>
-      <div id="settingsSection" class="page-section">
+      <div id="settingsSection" class="page-section workspace-page">
         <section class="section-panel glass">
           <div class="eyebrow">Admin</div>
           <h2>Settings</h2>
@@ -1303,12 +1350,18 @@ document.querySelectorAll('.delete-post').forEach(btn => {
 
 document.querySelectorAll('.nav-link').forEach(btn => {
   btn.addEventListener('click', () => {
+    const targetId = btn.dataset.target;
+    const target = document.getElementById(targetId);
+    if(!target) return;
+
     document.querySelectorAll('.nav-link').forEach(b => b.classList.remove('active'));
+    document.querySelectorAll('.page-section').forEach(section => section.classList.remove('active'));
+
     btn.classList.add('active');
-    document.querySelectorAll('.page-section').forEach(s => s.classList.remove('active'));
-    const target = document.getElementById(btn.dataset.target);
-    if (target) target.classList.add('active');
-    window.scrollTo({top:0, behavior:'smooth'});
+    target.classList.add('active');
+
+    const main = document.querySelector('.main');
+    if(main) main.scrollIntoView({behavior:'smooth', block:'start'});
   });
 });
 
@@ -2071,6 +2124,14 @@ saveHashtagBtn?.addEventListener('click', () => {
   rebuildHashtagCategoryFilter();
   renderLinkedinHashtags();
   hashtagModal.style.display = 'none';
+});
+
+
+document.getElementById('calendarAddContentBtn')?.addEventListener('click', () => {
+  document.getElementById('addContentBtn')?.click();
+});
+document.getElementById('openDashboardCalendarBtn')?.addEventListener('click', () => {
+  document.querySelector('[data-target="dashboardSection"]')?.click();
 });
 
 </script>
