@@ -1865,13 +1865,15 @@ const calendarBtn = document.getElementById('calendarBtn');
 const listBtn = document.getElementById('listBtn');
 const calendarView = document.getElementById('calendarView');
 const listView = document.getElementById('listView');
-calendarBtn.addEventListener('click', () => {
-  calendarBtn.classList.add('active'); listBtn.classList.remove('active');
-  calendarView.style.display='block'; listView.style.display='none';
+calendarBtn?.addEventListener('click', () => {
+  calendarBtn.classList.add('active'); listBtn?.classList.remove('active');
+  if(calendarView) calendarView.style.display='block';
+  if(listView) listView.style.display='none';
 });
-listBtn.addEventListener('click', () => {
-  listBtn.classList.add('active'); calendarBtn.classList.remove('active');
-  calendarView.style.display='none'; listView.style.display='block';
+listBtn?.addEventListener('click', () => {
+  listBtn.classList.add('active'); calendarBtn?.classList.remove('active');
+  if(calendarView) calendarView.style.display='none';
+  if(listView) listView.style.display='block';
 });
 const modal = document.getElementById('modalBackdrop');
 document.getElementById('addContentBtn').onclick = () => modal.style.display='flex';
@@ -1913,7 +1915,6 @@ document.querySelectorAll('.nav-link').forEach(btn => {
 
     window.scrollTo({top:0, behavior:'auto'});
   });
-});
 });
 
 
