@@ -730,6 +730,33 @@ td:last-child{border-radius:0 12px 12px 0}
   .hashtags-toolbar{grid-template-columns:1fr}
 }
 
+
+.hashtags-head-actions{
+  display:flex;
+  align-items:center;
+  gap:10px;
+  flex-wrap:wrap;
+}
+.hashtags-table td:last-child,
+.hashtags-table th:last-child{
+  text-align:center;
+  width:82px;
+}
+.hashtag-delete-btn{
+  border:1px solid rgba(0,0,0,.08);
+  background:#1d1d1d;
+  color:#fff;
+  border-radius:9px;
+  padding:6px 9px;
+  font:inherit;
+  font-size:9px;
+  font-weight:900;
+  cursor:pointer;
+}
+.hashtag-delete-btn:hover{
+  background:#000;
+}
+
 </style>
 </head>
 <body>
@@ -980,9 +1007,12 @@ td:last-child{border-radius:0 12px 12px 0}
               <h2>HASHTAGS - LINKEDIN</h2>
               <p>Use the filters to quickly find relevant LinkedIn hashtags by category and follower size.</p>
             </div>
-            <div class="hashtags-count-card">
-              <span>Visible hashtags</span>
-              <b id="hashtagVisibleCount">0</b>
+            <div class="hashtags-head-actions">
+              <div class="hashtags-count-card">
+                <span>Visible hashtags</span>
+                <b id="hashtagVisibleCount">0</b>
+              </div>
+              <button class="primary-btn" id="addHashtagBtn">＋ Add Hashtag</button>
             </div>
           </div>
 
@@ -1016,7 +1046,7 @@ td:last-child{border-radius:0 12px 12px 0}
                 <tr>
                   <th>Hashtag</th>
                   <th>Category</th>
-                  <th class="followers-col">Followers</th>
+                  <th class="followers-col">Followers</th><th>Actions</th>
                 </tr>
               </thead>
               <tbody id="hashtagsTableBody"></tbody>
@@ -1108,6 +1138,47 @@ td:last-child{border-radius:0 12px 12px 0}
 </div>
 
 
+
+
+<div class="modal-backdrop" id="hashtagModalBackdrop">
+  <div class="modal">
+    <div class="modal-head">
+      <div><div class="eyebrow">LinkedIn hashtag library</div><h2>Add Hashtag</h2></div>
+      <button class="icon-btn" id="closeHashtagModal">×</button>
+    </div>
+
+    <div class="form-grid">
+      <div class="field full">
+        <label>Hashtag</label>
+        <input id="newHashtagInput" placeholder="#example">
+      </div>
+      <div class="field">
+        <label>Category</label>
+        <select id="newHashtagCategory">
+          <option>Manufacturing and Technology</option>
+          <option>Environmental and Public Health</option>
+          <option>Engineering and Construction</option>
+          <option>Welding Related</option>
+          <option>Fumes and Air Quality</option>
+          <option>Occupational Health and Safety</option>
+          <option>Solar Energy</option>
+          <option>Miscellaneous</option>
+          <option>Uncategorized</option>
+          <option>Other / N/A</option>
+        </select>
+      </div>
+      <div class="field">
+        <label>Followers</label>
+        <input id="newHashtagFollowers" type="number" min="0" step="1" placeholder="e.g. 25000">
+      </div>
+    </div>
+
+    <div class="modal-actions">
+      <button class="ghost-btn" id="cancelHashtagModal">Cancel</button>
+      <button class="primary-btn" id="saveHashtagBtn">Save Hashtag</button>
+    </div>
+  </div>
+</div>
 
 <div class="event-editor-backdrop" id="eventEditorBackdrop">
   <div class="event-editor">
@@ -1832,6 +1903,28 @@ function calendarChipWithCreator(post, text, extraClass=''){
 
 
 const linkedinHashtags = [{"hashtag": "#innovation", "category": "Miscellaneous", "followers": 38511731}, {"hashtag": "#management", "category": "Uncategorized", "followers": 35669191}, {"hashtag": "#digitalmarketing", "category": "Uncategorized", "followers": 27152484}, {"hashtag": "#technology", "category": "Manufacturing and Technology", "followers": 26231290}, {"hashtag": "#marketing", "category": "Uncategorized", "followers": 20214692}, {"hashtag": "#sustainability", "category": "Environmental and Public Health", "followers": 13192818}, {"hashtag": "#bestadvice", "category": "Uncategorized", "followers": 7603423}, {"hashtag": "#design", "category": "Uncategorized", "followers": 5844294}, {"hashtag": "#ecommerce", "category": "Uncategorized", "followers": 5311452}, {"hashtag": "#automotiveindustry", "category": "Uncategorized", "followers": 4063088}, {"hashtag": "#leadership", "category": "Uncategorized", "followers": 3282867}, {"hashtag": "#artificialintelligence", "category": "Uncategorized", "followers": 2446981}, {"hashtag": "#linkedin", "category": "Uncategorized", "followers": 1435170}, {"hashtag": "#insurance", "category": "Uncategorized", "followers": 861232}, {"hashtag": "#renewableenergy", "category": "Environmental and Public Health", "followers": 822753}, {"hashtag": "#mechanicalengineering", "category": "Engineering and Construction", "followers": 719292}, {"hashtag": "#contentmarketing", "category": "Uncategorized", "followers": 656811}, {"hashtag": "#leanmanufacturing", "category": "Welding Related", "followers": 616493}, {"hashtag": "#ai", "category": "Uncategorized", "followers": 611963}, {"hashtag": "#leadershipdevelopment", "category": "Uncategorized", "followers": 409365}, {"hashtag": "#Manufacturing", "category": "Manufacturing and Technology", "followers": 279953}, {"hashtag": "#training", "category": "Miscellaneous", "followers": 241348}, {"hashtag": "#engineering", "category": "Engineering and Construction", "followers": 199145}, {"hashtag": "#automation", "category": "Manufacturing and Technology", "followers": 165481}, {"hashtag": "#climatechange", "category": "Environmental and Public Health", "followers": 161483}, {"hashtag": "#wellness", "category": "Uncategorized", "followers": 147747}, {"hashtag": "#environment", "category": "Uncategorized", "followers": 123751}, {"hashtag": "#chatgpt", "category": "Uncategorized", "followers": 101543}, {"hashtag": "#leaders", "category": "Uncategorized", "followers": 100262}, {"hashtag": "#drilling", "category": "Manufacturing and Technology", "followers": 83321}, {"hashtag": "#structuralengineering", "category": "Engineering and Construction", "followers": 68832}, {"hashtag": "#staffing", "category": "Uncategorized", "followers": 63678}, {"hashtag": "#solarenergy", "category": "Solar Energy", "followers": 52143}, {"hashtag": "#healthandsafety", "category": "Fumes and Air Quality", "followers": 46752}, {"hashtag": "#mechanicalengineer", "category": "Engineering and Construction", "followers": 36156}, {"hashtag": "#greenenergy", "category": "Environmental and Public Health", "followers": 35947}, {"hashtag": "#solarpower", "category": "Solar Energy", "followers": 33543}, {"hashtag": "#miningindustry", "category": "Uncategorized", "followers": 33438}, {"hashtag": "#chemical", "category": "Welding Related", "followers": 30972}, {"hashtag": "#climateaction", "category": "Environmental and Public Health", "followers": 28873}, {"hashtag": "#securityprofessionals", "category": "Uncategorized", "followers": 28096}, {"hashtag": "#professionaldevelopment", "category": "Uncategorized", "followers": 27954}, {"hashtag": "#skills", "category": "Miscellaneous", "followers": 26632}, {"hashtag": "#safetyfirst", "category": "Uncategorized", "followers": 26409}, {"hashtag": "#steel", "category": "Uncategorized", "followers": 24420}, {"hashtag": "#welding", "category": "Welding Related", "followers": 23548}, {"hashtag": "#CNC", "category": "Manufacturing and Technology", "followers": 19987}, {"hashtag": "#inspection", "category": "Uncategorized", "followers": 19848}, {"hashtag": "#industrial", "category": "Welding Related", "followers": 15372}, {"hashtag": "#workplacewellbeing", "category": "Occupational Health and Safety", "followers": 15138}, {"hashtag": "#fabrication", "category": "Manufacturing and Technology", "followers": 15087}, {"hashtag": "#workplacesafety", "category": "Uncategorized", "followers": 14522}, {"hashtag": "#free", "category": "Uncategorized", "followers": 13785}, {"hashtag": "#entrepeneurship", "category": "Uncategorized", "followers": 13592}, {"hashtag": "#generativeai", "category": "Uncategorized", "followers": 13328}, {"hashtag": "#canadianenergy", "category": "Miscellaneous", "followers": 12723}, {"hashtag": "#safetyprofessionals", "category": "Uncategorized", "followers": 12307}, {"hashtag": "#osha", "category": "Occupational Health and Safety", "followers": 10943}, {"hashtag": "#metalworking", "category": "Manufacturing and Technology", "followers": 10911}, {"hashtag": "#occupationalhealth", "category": "Occupational Health and Safety", "followers": 10689}, {"hashtag": "#worklife", "category": "Miscellaneous", "followers": 10354}, {"hashtag": "#solarpanels", "category": "Solar Energy", "followers": 9999}, {"hashtag": "#staffingindustry", "category": "Uncategorized", "followers": 9417}, {"hashtag": "#ecofriendly", "category": "Uncategorized", "followers": 8963}, {"hashtag": "#internet", "category": "Uncategorized", "followers": 8956}, {"hashtag": "#greenfinance", "category": "Environmental and Public Health", "followers": 8426}, {"hashtag": "#welder", "category": "Welding Related", "followers": 8271}, {"hashtag": "#drillingengineering", "category": "Manufacturing and Technology", "followers": 7580}, {"hashtag": "#solarprojects", "category": "Solar Energy", "followers": 7545}, {"hashtag": "#welders", "category": "Uncategorized", "followers": 7411}, {"hashtag": "#airquality", "category": "Fumes and Air Quality", "followers": 7285}, {"hashtag": "#futureofmining", "category": "Uncategorized", "followers": 7284}, {"hashtag": "#ventilation", "category": "Fumes and Air Quality", "followers": 7186}, {"hashtag": "#blackfriday", "category": "Uncategorized", "followers": 6983}, {"hashtag": "#milling", "category": "Manufacturing and Technology", "followers": 6943}, {"hashtag": "#metalfabrication", "category": "Uncategorized", "followers": 6567}, {"hashtag": "#efficiency", "category": "Uncategorized", "followers": 6511}, {"hashtag": "#healtheducation", "category": "Uncategorized", "followers": 6213}, {"hashtag": "#workerscompensation", "category": "Uncategorized", "followers": 6042}, {"hashtag": "#trees", "category": "Uncategorized", "followers": 5928}, {"hashtag": "#rooftopsolar", "category": "Solar Energy", "followers": 5832}, {"hashtag": "#greeninfrastructure", "category": "Environmental and Public Health", "followers": 5750}, {"hashtag": "#tools", "category": "Uncategorized", "followers": 5604}, {"hashtag": "#sheetmetal", "category": "Miscellaneous", "followers": 5569}, {"hashtag": "#healthy", "category": "Uncategorized", "followers": 5082}, {"hashtag": "#laser", "category": "Welding Related", "followers": 5061}, {"hashtag": "#environmentalhealth", "category": "Environmental and Public Health", "followers": 4821}, {"hashtag": "#gogreen", "category": "Uncategorized", "followers": 4700}, {"hashtag": "#solarpanel", "category": "Solar Energy", "followers": 4383}, {"hashtag": "#responsibility", "category": "Uncategorized", "followers": 4054}, {"hashtag": "#solarnews", "category": "Solar Energy", "followers": 3953}, {"hashtag": "#metal", "category": "Manufacturing and Technology", "followers": 3599}, {"hashtag": "#airpollution", "category": "Fumes and Air Quality", "followers": 3496}, {"hashtag": "#earth", "category": "Uncategorized", "followers": 2568}, {"hashtag": "#lasercutting", "category": "Manufacturing and Technology", "followers": 1903}, {"hashtag": "#Grinding", "category": "Manufacturing and Technology", "followers": 1724}, {"hashtag": "#indoorairquality", "category": "Fumes and Air Quality", "followers": 1625}, {"hashtag": "#moldmaking", "category": "Manufacturing and Technology", "followers": 1576}, {"hashtag": "#solarrooftop", "category": "Solar Energy", "followers": 1556}, {"hashtag": "#cleanair", "category": "Fumes and Air Quality", "followers": 1471}, {"hashtag": "#clearair", "category": "Fumes and Air Quality", "followers": 1444}, {"hashtag": "#environmentallyfriendly", "category": "Environmental and Public Health", "followers": 1335}, {"hashtag": "#weldinginspector", "category": "Welding Related", "followers": 1250}, {"hashtag": "#turning", "category": "Manufacturing and Technology", "followers": 1163}, {"hashtag": "#extraction", "category": "Welding Related", "followers": 1155}, {"hashtag": "#weld", "category": "Welding Related", "followers": 1125}, {"hashtag": "#sustainabletransport", "category": "Environmental and Public Health", "followers": 1102}, {"hashtag": "#tigwelding", "category": "Welding Related", "followers": 1075}, {"hashtag": "#industrialhygiene", "category": "Fumes and Air Quality", "followers": 1026}, {"hashtag": "#securityconsulting", "category": "Uncategorized", "followers": 979}, {"hashtag": "#industrialsafety", "category": "Occupational Health and Safety", "followers": 823}, {"hashtag": "#metalwork", "category": "Uncategorized", "followers": 760}, {"hashtag": "#metalwork", "category": "Manufacturing and Technology", "followers": 751}, {"hashtag": "#industrialequipment", "category": "Miscellaneous", "followers": 720}, {"hashtag": "#industrialcleaning", "category": "Miscellaneous", "followers": 659}, {"hashtag": "#weldingengineer", "category": "Welding Related", "followers": 621}, {"hashtag": "#occupationalsafety", "category": "Uncategorized", "followers": 609}, {"hashtag": "#weldinginspection", "category": "Welding Related", "followers": 601}, {"hashtag": "#tig", "category": "Welding Related", "followers": 592}, {"hashtag": "#occupationalhygiene", "category": "Occupational Health and Safety", "followers": 589}, {"hashtag": "#laserwelding", "category": "Manufacturing and Technology", "followers": 577}, {"hashtag": "#publichealthmatters", "category": "Environmental and Public Health", "followers": 509}, {"hashtag": "#workplaceviolence", "category": "Uncategorized", "followers": 451}, {"hashtag": "#airfiltration", "category": "Fumes and Air Quality", "followers": 424}, {"hashtag": "#cleanairmatters", "category": "Fumes and Air Quality", "followers": 393}, {"hashtag": "#weldingautomation", "category": "Welding Related", "followers": 389}, {"hashtag": "#weldingmachine", "category": "Welding Related", "followers": 370}, {"hashtag": "#weldernation", "category": "Uncategorized", "followers": 326}, {"hashtag": "#weldinglife", "category": "Welding Related", "followers": 279}, {"hashtag": "#workplaceviolenceprevention", "category": "Uncategorized", "followers": 248}, {"hashtag": "#weldingequipment", "category": "Welding Related", "followers": 213}, {"hashtag": "#deburring", "category": "Manufacturing and Technology", "followers": 203}, {"hashtag": "#ventilationsystem", "category": "Fumes and Air Quality", "followers": 166}, {"hashtag": "#pipefabrication", "category": "Welding Related", "followers": 152}, {"hashtag": "#micromachining", "category": "Manufacturing and Technology", "followers": 123}, {"hashtag": "#weldingsupplies", "category": "Welding Related", "followers": 105}, {"hashtag": "#fumeextraction", "category": "Fumes and Air Quality", "followers": 101}, {"hashtag": "#compliancematters", "category": "Uncategorized", "followers": 81}, {"hashtag": "#safeworkplaces", "category": "Occupational Health and Safety", "followers": 41}, {"hashtag": "#thecleanaircompany - This is Nederman tagline", "category": "Other / N/A", "followers": 40}, {"hashtag": "#weldingindustry", "category": "Welding Related", "followers": 33}, {"hashtag": "#manufacturingtech", "category": "Manufacturing and Technology", "followers": 29}, {"hashtag": "#aircleaning", "category": "Fumes and Air Quality", "followers": 27}, {"hashtag": "#toolholders", "category": "Manufacturing and Technology", "followers": 23}, {"hashtag": "#WeldingFumes", "category": "Welding Related", "followers": 10}, {"hashtag": "#fumes", "category": "Fumes and Air Quality", "followers": 8}, {"hashtag": "#WeldingFumeExtraction", "category": "Welding Related", "followers": 7}, {"hashtag": "#FumeExtractor", "category": "Fumes and Air Quality", "followers": 5}, {"hashtag": "#sales", "category": "Uncategorized", "followers": 5826765}];
+const HASHTAG_STORAGE_KEY = 'plymovent_linkedin_custom_hashtags_v1';
+
+function loadCustomLinkedinHashtags(){
+  try{
+    const raw = localStorage.getItem(HASHTAG_STORAGE_KEY);
+    return raw ? JSON.parse(raw) : [];
+  }catch(e){
+    return [];
+  }
+}
+function saveCustomLinkedinHashtags(){
+  localStorage.setItem(HASHTAG_STORAGE_KEY, JSON.stringify(customLinkedinHashtags));
+}
+let customLinkedinHashtags = loadCustomLinkedinHashtags();
+
+function allLinkedinHashtags(){
+  return [
+    ...linkedinHashtags.map(item => ({...item, custom:false})),
+    ...customLinkedinHashtags.map(item => ({...item, custom:true}))
+  ];
+}
+
 
 function formatFollowerCount(value){
   return Number(value).toLocaleString('en-US');
@@ -1851,7 +1944,7 @@ function followerBucketMatches(value, bucket){
 function setupHashtagFilters(){
   const categorySelect = document.getElementById('hashtagCategoryFilter');
   if(!categorySelect) return;
-  const categories = [...new Set(linkedinHashtags.map(x => x.category))].sort((a,b) => a.localeCompare(b));
+  const categories = [...new Set(allLinkedinHashtags().map(x => x.category))].sort((a,b) => a.localeCompare(b));
   categories.forEach(category => {
     const option = document.createElement('option');
     option.value = category;
@@ -1867,7 +1960,7 @@ function renderLinkedinHashtags(){
   const search = (document.getElementById('hashtagSearch')?.value || '').trim().toLowerCase();
   if(!body) return;
 
-  const filtered = linkedinHashtags
+  const filtered = allLinkedinHashtags()
     .filter(item => category === 'all' || item.category === category)
     .filter(item => followerBucketMatches(item.followers, followers))
     .filter(item => !search || item.hashtag.toLowerCase().includes(search) || item.category.toLowerCase().includes(search))
@@ -1878,6 +1971,7 @@ function renderLinkedinHashtags(){
       <td>${item.hashtag}</td>
       <td><span class="hashtag-category">${item.category}</span></td>
       <td><span class="hashtag-followers">${formatFollowerCount(item.followers)}</span></td>
+      <td>${item.custom ? `<button class="hashtag-delete-btn" data-hashtag-id="${item.id}">Delete</button>` : '—'}</td>
     </tr>
   `).join('');
 
@@ -1885,6 +1979,20 @@ function renderLinkedinHashtags(){
   if(count) count.textContent = filtered.length;
   const empty = document.getElementById('hashtagsEmpty');
   if(empty) empty.style.display = filtered.length ? 'none' : 'block';
+
+  document.querySelectorAll('.hashtag-delete-btn').forEach(btn => {
+    btn.onclick = () => {
+      const id = btn.dataset.hashtagId;
+      const item = customLinkedinHashtags.find(x => x.id === id);
+      if(!item) return;
+      if(confirm(`Delete ${item.hashtag}?`)){
+        customLinkedinHashtags = customLinkedinHashtags.filter(x => x.id !== id);
+        saveCustomLinkedinHashtags();
+        rebuildHashtagCategoryFilter();
+        renderLinkedinHashtags();
+      }
+    };
+  });
 }
 
 setupHashtagFilters();
@@ -1892,6 +2000,77 @@ setupHashtagFilters();
   document.getElementById(id)?.addEventListener(id === 'hashtagSearch' ? 'input' : 'change', renderLinkedinHashtags);
 });
 renderLinkedinHashtags();
+
+
+function rebuildHashtagCategoryFilter(){
+  const select = document.getElementById('hashtagCategoryFilter');
+  if(!select) return;
+  const selected = select.value;
+  select.innerHTML = '<option value="all">All Categories</option>';
+  const categories = [...new Set(allLinkedinHashtags().map(x => x.category))].sort((a,b) => a.localeCompare(b));
+  categories.forEach(category => {
+    const option = document.createElement('option');
+    option.value = category;
+    option.textContent = category;
+    select.appendChild(option);
+  });
+  if([...select.options].some(o => o.value === selected)){
+    select.value = selected;
+  }
+}
+
+const hashtagModal = document.getElementById('hashtagModalBackdrop');
+const addHashtagBtn = document.getElementById('addHashtagBtn');
+const closeHashtagModal = document.getElementById('closeHashtagModal');
+const cancelHashtagModal = document.getElementById('cancelHashtagModal');
+const saveHashtagBtn = document.getElementById('saveHashtagBtn');
+
+addHashtagBtn?.addEventListener('click', () => {
+  document.getElementById('newHashtagInput').value = '';
+  document.getElementById('newHashtagFollowers').value = '';
+  hashtagModal.style.display = 'flex';
+});
+
+closeHashtagModal?.addEventListener('click', () => hashtagModal.style.display = 'none');
+cancelHashtagModal?.addEventListener('click', () => hashtagModal.style.display = 'none');
+hashtagModal?.addEventListener('click', e => {
+  if(e.target === hashtagModal) hashtagModal.style.display = 'none';
+});
+
+saveHashtagBtn?.addEventListener('click', () => {
+  let hashtag = document.getElementById('newHashtagInput').value.trim();
+  const category = document.getElementById('newHashtagCategory').value;
+  const followersRaw = document.getElementById('newHashtagFollowers').value.trim();
+  const followers = Number(followersRaw);
+
+  if(!hashtag){
+    alert('Please enter a hashtag.');
+    return;
+  }
+  if(!hashtag.startsWith('#')) hashtag = '#' + hashtag;
+  if(!Number.isFinite(followers) || followers < 0){
+    alert('Please enter a valid follower count.');
+    return;
+  }
+
+  const exists = allLinkedinHashtags().some(x => x.hashtag.toLowerCase() === hashtag.toLowerCase());
+  if(exists){
+    alert('This hashtag is already in the library.');
+    return;
+  }
+
+  customLinkedinHashtags.push({
+    id: 'custom-' + Date.now(),
+    hashtag,
+    category,
+    followers
+  });
+
+  saveCustomLinkedinHashtags();
+  rebuildHashtagCategoryFilter();
+  renderLinkedinHashtags();
+  hashtagModal.style.display = 'none';
+});
 
 </script>
 </body>
