@@ -739,7 +739,6 @@ td:last-child{border-radius:0 12px 12px 0}
 .hashtags-table td:last-child,
 .hashtags-table th:last-child{
   text-align:center;
-  width:82px;
 }
 .hashtag-delete-btn{
   border:1px solid rgba(0,0,0,.08);
@@ -780,6 +779,152 @@ td:last-child{border-radius:0 12px 12px 0}
   margin:8px 0 0;
   color:var(--muted);
   font-size:14px;
+}
+
+
+/* Strict single-workspace tab visibility */
+.main > .page-section{display:none !important;width:100%;}
+.main > .page-section.active{display:block !important;}
+
+
+/* Hashtag table readability and compact column layout */
+.hashtags-panel{
+  padding:24px;
+}
+.hashtags-head h2{
+  font-size:24px;
+}
+.hashtags-head p{
+  font-size:14px;
+  line-height:1.45;
+}
+.hashtags-toolbar{
+  grid-template-columns:minmax(190px,.9fr) minmax(190px,.9fr) minmax(260px,1.3fr);
+  gap:14px;
+}
+.field-inline label{
+  font-size:11px;
+}
+.field-inline select,
+.field-inline input{
+  height:44px;
+  font-size:14px;
+  font-weight:700;
+}
+.hashtags-table{
+  width:100%;
+  min-width:0;
+  table-layout:fixed;
+  border-spacing:0 8px;
+}
+.hashtags-table th{
+  font-size:11px;
+  padding:0 10px;
+}
+.hashtags-table td{
+  padding:13px 10px;
+  font-size:14px;
+  line-height:1.25;
+}
+.hashtags-table th:nth-child(1),
+.hashtags-table td:nth-child(1){
+  width:25%;
+}
+.hashtags-table th:nth-child(2),
+.hashtags-table td:nth-child(2){
+  width:30%;
+}
+.hashtags-table th:nth-child(3),
+.hashtags-table td:nth-child(3){
+  width:16%;
+  text-align:center;
+}
+.hashtags-table th:nth-child(4),
+.hashtags-table td:nth-child(4){
+  width:18%;
+  text-align:center;
+}
+.hashtags-table th:nth-child(5),
+.hashtags-table td:nth-child(5){
+  width:11%;
+  text-align:center;
+}
+.hashtag-category{
+  max-width:100%;
+  white-space:normal;
+  line-height:1.2;
+  padding:6px 9px;
+  font-size:11px;
+  justify-content:flex-start;
+}
+.hashtag-followers{
+  min-width:96px;
+  padding:7px 10px;
+  font-size:11px;
+}
+.social-media-pill{
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  min-width:78px;
+  padding:7px 10px;
+  border-radius:9px;
+  background:linear-gradient(145deg,rgba(255,255,255,.86),rgba(238,238,238,.62));
+  border:1px solid rgba(255,255,255,.94);
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.96),0 5px 12px rgba(0,0,0,.05);
+  font-size:11px;
+  font-weight:900;
+}
+.hashtag-delete-btn{
+  font-size:10px;
+  padding:7px 10px;
+}
+@media(max-width:1050px){
+  .hashtags-table{
+    min-width:820px;
+  }
+  .hashtags-table-wrap{
+    overflow:auto;
+  }
+}
+
+
+/* Match all workspace tabs to the Dashboard color treatment */
+#hashtagsLinkedinSection,
+#calendarSection,
+#ideasSection,
+#eventsSection,
+#assetsSection,
+#settingsSection{
+  background:transparent !important;
+  color:var(--text);
+}
+#hashtagsLinkedinSection .section-panel,
+#calendarSection .section-panel,
+#ideasSection .section-panel,
+#eventsSection .section-panel,
+#assetsSection .section-panel,
+#settingsSection .section-panel{
+  background:rgba(255,255,255,.72) !important;
+  border:1px solid rgba(255,255,255,.86);
+  box-shadow:0 12px 32px rgba(0,0,0,.055);
+  backdrop-filter:blur(16px);
+  -webkit-backdrop-filter:blur(16px);
+}
+#hashtagsLinkedinSection .hashtags-count-card{
+  background:rgba(255,255,255,.76) !important;
+  border:1px solid rgba(0,0,0,.06);
+}
+#hashtagsLinkedinSection .hashtags-table td{
+  background:rgba(255,255,255,.66) !important;
+}
+#hashtagsLinkedinSection .hashtag-followers{
+  background:rgba(255,255,255,.82) !important;
+  border:1px solid rgba(0,0,0,.06);
+}
+#hashtagsLinkedinSection .hashtags-toolbar select,
+#hashtagsLinkedinSection .hashtags-toolbar input{
+  background:rgba(255,255,255,.78) !important;
 }
 
 </style>
@@ -838,7 +983,7 @@ td:last-child{border-radius:0 12px 12px 0}
       <div class="nav-title">Workspace</div>
       <nav class="nav">
         <button class="nav-link active" data-target="dashboardSection"><span class="dot"></span>Dashboard</button>
-        <button class="nav-link" data-target="hashtagsLinkedinSection"><span class="dot"></span>HASHTAGS - LINKEDIN</button>
+        <button class="nav-link" data-target="hashtagsLinkedinSection"><span class="dot"></span>HASHTAGS</button>
         <button class="nav-link" data-target="calendarSection"><span class="dot"></span>Content Calendar</button>
         <button class="nav-link" data-target="ideasSection"><span class="dot"></span>Ideas Bank</button>
         <button class="nav-link" data-target="eventsSection"><span class="dot"></span>Events</button>
@@ -895,8 +1040,6 @@ td:last-child{border-radius:0 12px 12px 0}
             <span class="event-counter" id="upcomingEventCounter">1 / 3</span>
             <button class="event-arrow" id="upcomingNext" type="button" aria-label="Next upcoming event">›</button>
           </div>
-        </div>
-          <div class="sub">Next scheduled awareness dates</div>
         </div>
       </section>
 
@@ -1028,7 +1171,7 @@ td:last-child{border-radius:0 12px 12px 0}
         <div class="workspace-page-head">
           <div>
             <div class="eyebrow">LinkedIn reference library</div>
-            <h1>HASHTAGS - LINKEDIN</h1>
+            <h1>HASHTAGS</h1>
             <p>Browse, filter and maintain the LinkedIn hashtag library.</p>
           </div>
         </div>
@@ -1077,7 +1220,7 @@ td:last-child{border-radius:0 12px 12px 0}
                 <tr>
                   <th>Hashtag</th>
                   <th>Category</th>
-                  <th class="followers-col">Followers</th><th>Actions</th>
+                  <th>Social Media</th><th class="followers-col">Followers</th><th>Actions</th>
                 </tr>
               </thead>
               <tbody id="hashtagsTableBody"></tbody>
@@ -1974,8 +2117,8 @@ let customLinkedinHashtags = loadCustomLinkedinHashtags();
 
 function allLinkedinHashtags(){
   return [
-    ...linkedinHashtags.map(item => ({...item, custom:false})),
-    ...customLinkedinHashtags.map(item => ({...item, custom:true}))
+    ...linkedinHashtags.map(item => ({...item, socialMedia:item.socialMedia || 'LinkedIn', custom:false})),
+    ...customLinkedinHashtags.map(item => ({...item, socialMedia:item.socialMedia || 'LinkedIn', custom:true}))
   ];
 }
 
@@ -2024,6 +2167,7 @@ function renderLinkedinHashtags(){
     <tr>
       <td>${item.hashtag}</td>
       <td><span class="hashtag-category">${item.category}</span></td>
+      <td><span class="social-media-pill">${item.socialMedia || 'LinkedIn'}</span></td>
       <td><span class="hashtag-followers">${formatFollowerCount(item.followers)}</span></td>
       <td>${item.custom ? `<button class="hashtag-delete-btn" data-hashtag-id="${item.id}">Delete</button>` : '—'}</td>
     </tr>
@@ -2117,7 +2261,8 @@ saveHashtagBtn?.addEventListener('click', () => {
     id: 'custom-' + Date.now(),
     hashtag,
     category,
-    followers
+    followers,
+    socialMedia: 'LinkedIn'
   });
 
   saveCustomLinkedinHashtags();
