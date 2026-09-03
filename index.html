@@ -572,6 +572,20 @@ td:last-child{border-radius:0 12px 12px 0}
   .side-stack{grid-template-columns:1fr}
 }
 
+
+.compact-events-panel{padding-bottom:14px}
+.monthly-events-head{display:flex;flex-direction:column;gap:12px;margin-bottom:12px}
+.monthly-events-head h2{font-size:17px;margin:0}
+.monthly-events-head span{font-size:12px;color:#777}
+.monthly-events-nav{display:grid;grid-template-columns:34px 1fr 34px;gap:8px;align-items:center}
+.month-arrow{width:34px;height:34px;border-radius:11px;border:1px solid rgba(0,0,0,.07);background:rgba(255,255,255,.78);font-size:20px;font-weight:900;cursor:pointer}
+.events-month-label{height:34px;border-radius:11px;display:flex;align-items:center;justify-content:center;background:rgba(255,203,31,.16);font-size:11px;font-weight:950}
+.compact-events-list{display:flex;flex-direction:column;gap:8px;min-height:54px}
+.compact-event-row{display:grid;grid-template-columns:minmax(0,1fr) auto;align-items:center;gap:10px;padding:9px 10px;border-radius:11px;background:rgba(255,255,255,.56);border:1px solid rgba(0,0,0,.05)}
+.compact-event-row span{font-size:11px;font-weight:850;line-height:1.2}
+.compact-event-row b{font-size:9px;font-weight:950;padding:5px 7px;border-radius:8px;background:rgba(255,203,31,.22);white-space:nowrap}
+.no-month-events{min-height:54px;display:flex;align-items:center;justify-content:center;border:1px dashed rgba(0,0,0,.1);border-radius:11px;color:#888;font-size:11px;font-weight:750;text-align:center;padding:10px}
+
 </style>
 </head>
 <body>
@@ -794,19 +808,20 @@ td:last-child{border-radius:0 12px 12px 0}
           </div>
 
           <div class="panel glass compact-events-panel">
-            <div class="panel-head">
-              <div>
-                <h2>Events</h2>
-                <span>Upcoming awareness dates</span>
-              </div>
-            </div>
-            <div class="compact-events-list" id="compactEventsList">
-              <div class="compact-event-row"><span>Labour Day</span><b>Sep 7</b></div>
-              <div class="compact-event-row"><span>Zero Emissions Day</span><b>Sep 21</b></div>
-              <div class="compact-event-row"><span>National Welding Month</span><b>Apr 1</b></div>
-              <div class="compact-event-row"><span>Clean Air Month</span><b>May 1</b></div>
-            </div>
-          </div>
+  <div class="monthly-events-head">
+    <div>
+      <h2>Events</h2>
+      <span>Monthly awareness dates</span>
+    </div>
+    <div class="monthly-events-nav">
+      <button class="month-arrow" id="eventsMonthPrev" type="button">‹</button>
+      <div class="events-month-label" id="eventsMonthLabel">August 2026</div>
+      <button class="month-arrow" id="eventsMonthNext" type="button">›</button>
+    </div>
+  </div>
+  <div class="compact-events-list" id="compactEventsList"></div>
+</div>
+</div>
         </aside>
       </section>
       </div>
@@ -1536,24 +1551,47 @@ if(exportBtn){
 renderLocalPosts();
 
 
-function refreshCompactEvents(){
-  const list = document.getElementById('compactEventsList');
-  if(!list) return;
-  const rows = [...document.querySelectorAll('#eventTableBody tr')].slice(0,6);
-  if(!rows.length) return;
-  list.innerHTML = rows.map(row => {
-    const date = row.children[0]?.textContent || '';
-    const name = row.children[1]?.textContent || '';
-    return `<div class="compact-event-row"><span>${name}</span><b>${date}</b></div>`;
-  }).join('');
+
+let eventsBrowserYear=2026, eventsBrowserMonth=7;
+
+function parseEventRange(text){
+  if(!text) return null;
+  const clean=text.replace(/[–—]/g,'-').trim();
+  let m=clean.match(/^([A-Za-z]{3,9})\s+(\d{1,2}),\s*(\d{4})\s*-\s*([A-Za-z]{3,9})\s+(\d{1,2}),\s*(\d{4})$/);
+  if(m) return {start:new Date(`${m[1]} ${m[2]}, ${m[3]}`),end:new Date(`${m[4]} ${m[5]}, ${m[6]}`)};
+  m=clean.match(/^([A-Za-z]{3,9})\s+(\d{1,2})-(\d{1,2}),\s*(\d{4})$/);
+  if(m) return {start:new Date(`${m[1]} ${m[2]}, ${m[4]}`),end:new Date(`${m[1]} ${m[3]}, ${m[4]}`)};
+  const d=new Date(clean);
+  return Number.isNaN(d.getTime())?null:{start:d,end:d};
 }
-refreshCompactEvents();
-document.addEventListener('click', e => {
-  if(e.target.classList.contains('delete-event')){
-    setTimeout(refreshCompactEvents, 20);
-  }
-});
-eventForm.addEventListener('submit', () => setTimeout(refreshCompactEvents, 20));
+function inBrowserMonth(text,y,m){
+  const r=parseEventRange(text); if(!r) return false;
+  const s=new Date(y,m,1), e=new Date(y,m+1,0,23,59,59);
+  return r.start<=e && r.end>=s;
+}
+function shortDate(text){
+  const r=parseEventRange(text); if(!r) return text;
+  const s=r.start.toLocaleDateString('en-US',{month:'short',day:'numeric'});
+  const e=r.end.toLocaleDateString('en-US',{month:'short',day:'numeric'});
+  if(r.start.getTime()===r.end.getTime()) return s;
+  if(r.start.getMonth()===r.end.getMonth()) return `${r.start.toLocaleDateString('en-US',{month:'short'})} ${r.start.getDate()}–${r.end.getDate()}`;
+  return `${s}–${e}`;
+}
+function renderMonthlyEvents(){
+  const list=document.getElementById('compactEventsList');
+  const label=document.getElementById('eventsMonthLabel');
+  if(!list||!label) return;
+  label.textContent=new Date(eventsBrowserYear,eventsBrowserMonth,1).toLocaleDateString('en-US',{month:'long',year:'numeric'});
+  const rows=[...document.querySelectorAll('#eventTableBody tr')].map(r=>({date:r.children[0]?.textContent.trim()||'',name:r.children[1]?.textContent.trim()||''}))
+    .filter(e=>e.name&&inBrowserMonth(e.date,eventsBrowserYear,eventsBrowserMonth));
+  if(!rows.length){list.innerHTML='<div class="no-month-events">No events scheduled for this month.</div>';return;}
+  list.innerHTML=rows.map(e=>`<div class="compact-event-row"><span>${e.name}</span><b>${shortDate(e.date)}</b></div>`).join('');
+}
+document.getElementById('eventsMonthPrev')?.addEventListener('click',()=>{eventsBrowserMonth--;if(eventsBrowserMonth<0){eventsBrowserMonth=11;eventsBrowserYear--;}renderMonthlyEvents();});
+document.getElementById('eventsMonthNext')?.addEventListener('click',()=>{eventsBrowserMonth++;if(eventsBrowserMonth>11){eventsBrowserMonth=0;eventsBrowserYear++;}renderMonthlyEvents();});
+eventForm.addEventListener('submit',()=>setTimeout(renderMonthlyEvents,30));
+document.addEventListener('click',e=>{if(e.target.classList.contains('delete-event'))setTimeout(renderMonthlyEvents,30);});
+renderMonthlyEvents();
 
 </script>
 </body>
