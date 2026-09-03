@@ -586,6 +586,72 @@ td:last-child{border-radius:0 12px 12px 0}
 .compact-event-row b{font-size:9px;font-weight:950;padding:5px 7px;border-radius:8px;background:rgba(255,203,31,.22);white-space:nowrap}
 .no-month-events{min-height:54px;display:flex;align-items:center;justify-content:center;border:1px dashed rgba(0,0,0,.1);border-radius:11px;color:#888;font-size:11px;font-weight:750;text-align:center;padding:10px}
 
+
+/* Premium hover interaction for top scorecards */
+.score{
+  transition:
+    transform .24s ease,
+    box-shadow .24s ease,
+    background .24s ease,
+    border-color .24s ease;
+  transform:translateZ(0);
+}
+.score:hover{
+  transform:translateY(-6px) scale(1.015);
+  box-shadow:
+    0 22px 42px rgba(0,0,0,.13),
+    inset 0 1px 0 rgba(255,255,255,.88);
+  border-color:rgba(255,203,31,.30);
+}
+.score:before{
+  content:"";
+  position:absolute;
+  inset:0;
+  border-radius:inherit;
+  pointer-events:none;
+  opacity:0;
+  background:
+    linear-gradient(120deg,transparent 20%,rgba(255,255,255,.48) 45%,transparent 68%);
+  transform:translateX(-110%);
+  transition:transform .55s ease,opacity .24s ease;
+}
+.score:hover:before{
+  opacity:.9;
+  transform:translateX(110%);
+}
+.score:hover:after{
+  transform:rotate(29deg) scale(1.08);
+}
+.score:after{
+  transition:transform .28s ease,opacity .28s ease;
+}
+.score .value,
+.score .label,
+.score .sub{
+  position:relative;
+  z-index:2;
+  transition:transform .24s ease,letter-spacing .24s ease;
+}
+.score:hover .value{
+  transform:translateY(-1px);
+}
+.score:hover .label{
+  letter-spacing:.15em;
+}
+.score.event.current:hover{
+  background:linear-gradient(145deg,rgba(39,39,39,.98),rgba(16,16,16,.96));
+}
+.score.event:not(.current):hover{
+  background:rgba(255,255,255,.84);
+}
+@media (prefers-reduced-motion: reduce){
+  .score,.score:before,.score:after,.score .value,.score .label,.score .sub{
+    transition:none !important;
+  }
+  .score:hover{transform:none}
+  .score:hover:before{display:none}
+}
+
 </style>
 </head>
 <body>
