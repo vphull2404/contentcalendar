@@ -1281,7 +1281,7 @@ td:last-child{border-radius:0 12px 12px 0}
 }
 
 
-.calendar-month-nav{display:flex;align-items:center;gap:8px}.calendar-month-nav button{border:1px solid rgba(0,0,0,.12);background:#fff;border-radius:10px;min-width:34px;height:34px;padding:0 11px;cursor:pointer;font-weight:800;font-size:14px}.calendar-month-nav button:hover{background:#ffcb1f}.calendar-grid .day{min-height:100px}.calendar-grid .day .post-chip{margin-top:5px}
+.calendar-month-nav{display:flex;align-items:center;justify-content:flex-start;gap:10px}.calendar-month-nav h2{margin:0;white-space:nowrap}.calendar-month-nav button{flex:0 0 auto}.calendar-month-nav button{border:1px solid rgba(0,0,0,.12);background:#fff;border-radius:10px;min-width:34px;height:34px;padding:0 11px;cursor:pointer;font-weight:800;font-size:14px}.calendar-month-nav button:hover{background:#ffcb1f}.calendar-grid .day{min-height:100px}.calendar-grid .day .post-chip{margin-top:5px}
 
 /* Events appear in the same monthly grid as scheduled posts. */
 .calendar-grid .calendar-event-chip{display:block;box-sizing:border-box;width:100%;margin-top:4px;padding:5px 7px;border-radius:7px;background:#fff9e8;border:1px solid #d6ae31;color:#3c3214;font-size:10px;font-weight:800;line-height:1.3;white-space:normal;overflow-wrap:anywhere}
@@ -1436,8 +1436,7 @@ td:last-child{border-radius:0 12px 12px 0}
       <section class="content-grid">
         <div class="panel glass">
           <div class="panel-head">
-            <div><h2 id="visibleCalendarMonth">October 2026</h2><span id="visibleCalendarCount">My Calendar · 0 planned posts</span></div>
-            <div class="calendar-month-nav"><button type="button" id="calendarPreviousMonth" aria-label="Previous month">‹</button><button type="button" id="calendarGoToday">Today</button><button type="button" id="calendarNextMonth" aria-label="Next month">›</button></div>
+            <div><div class="calendar-month-nav"><button type="button" id="calendarPreviousMonth" aria-label="Previous month" title="Previous month">‹</button><h2 id="visibleCalendarMonth">October 2026</h2><button type="button" id="calendarNextMonth" aria-label="Next month" title="Next month">›</button></div><span id="visibleCalendarCount">My Calendar · 0 planned posts</span></div>
           </div>
 
           <div class="calendar-scroll" id="calendarView">
@@ -2934,7 +2933,7 @@ renderPostDimensions('LinkedIn');
  function move(offset){shown=new Date(shown.getFullYear(),shown.getMonth()+offset,1);paint();}
  document.getElementById('calendarPreviousMonth').addEventListener('click',()=>move(-1));
  document.getElementById('calendarNextMonth').addEventListener('click',()=>move(1));
- document.getElementById('calendarGoToday').addEventListener('click',()=>{shown=new Date(new Date().getFullYear(),new Date().getMonth(),1);paint();});
+
  monthSelect.addEventListener('change',()=>{shown=new Date(shown.getFullYear(),Number(monthSelect.value),1);paint();});
  yearSelect.addEventListener('change',()=>{shown=new Date(Number(yearSelect.value),shown.getMonth(),1);paint();});
  document.getElementById('profileFilter')?.addEventListener('change',paint);
