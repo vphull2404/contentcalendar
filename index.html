@@ -1298,6 +1298,13 @@ td:last-child{border-radius:0 12px 12px 0}
 .calendar-grid .day{box-sizing:border-box;min-width:0;width:100%;max-width:100%;overflow:hidden}
 .calendar-grid .calendar-event-chip,.calendar-grid .post-chip{box-sizing:border-box;min-width:0;max-width:100%;width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;display:block}
 .calendar-event-popover .pop-event{min-width:0;overflow-wrap:anywhere}
+
+/* Keep calendar month navigation stationary for short and long month names. */
+.calendar-month-nav{display:inline-grid!important;grid-template-columns:34px 174px 34px!important;align-items:center!important;column-gap:8px!important;justify-content:start!important;width:max-content;max-width:100%}
+.calendar-month-nav h2{width:174px!important;min-width:174px!important;max-width:174px!important;text-align:center!important;white-space:nowrap!important;line-height:1.2!important;font-variant-numeric:tabular-nums}
+.calendar-month-nav button{width:34px!important;min-width:34px!important;max-width:34px!important;height:34px!important;padding:0!important;display:grid!important;place-items:center!important;box-sizing:border-box!important}
+@media(max-width:420px){.calendar-month-nav{grid-template-columns:32px 144px 32px!important;column-gap:5px!important}.calendar-month-nav h2{width:144px!important;min-width:144px!important;max-width:144px!important;font-size:17px!important}.calendar-month-nav button{width:32px!important;min-width:32px!important;max-width:32px!important}}
+
 </style>
 </head>
 <body>
