@@ -1280,6 +1280,8 @@ td:last-child{border-radius:0 12px 12px 0}
   color:#fff;
 }
 
+
+.calendar-month-nav{display:flex;align-items:center;gap:8px}.calendar-month-nav button{border:1px solid rgba(0,0,0,.12);background:#fff;border-radius:10px;min-width:34px;height:34px;padding:0 11px;cursor:pointer;font-weight:800;font-size:14px}.calendar-month-nav button:hover{background:#ffcb1f}.calendar-grid .day{min-height:100px}.calendar-grid .day .post-chip{margin-top:5px}
 </style>
 </head>
 <body>
@@ -1399,8 +1401,8 @@ td:last-child{border-radius:0 12px 12px 0}
 
       <section class="toolbar glass">
         <div class="select-wrap"><select id="profileFilter"><option>My Calendar</option><option>Zyaam</option><option>Team Calendar</option><option>All Profiles</option></select></div>
-        <div class="select-wrap"><select><option>2026</option><option>2027</option></select></div>
-        <div class="select-wrap"><select><option>August</option><option>September</option><option>October</option></select></div>
+        <div class="select-wrap"><select id="calendarYearFilter"></select></div>
+        <div class="select-wrap"><select id="calendarMonthFilter"></select></div>
         <div class="select-wrap"><select><option>All Brands</option><option>Plymovent</option><option>RemoveTheFume</option></select></div>
         <div class="select-wrap"><select><option>All Platforms</option><option>Instagram</option><option>Facebook</option><option>LinkedIn</option><option>Twitter</option><option>YouTube</option><option>TikTok</option><option>Blog</option><option>Email</option><option>Other</option><option>WhatsApp</option></select></div>
         <div class="select-wrap"><select><option>All Statuses</option><option>Idea</option><option>In Progress</option><option>Scheduled</option><option>Published</option></select></div>
@@ -1418,14 +1420,13 @@ td:last-child{border-radius:0 12px 12px 0}
       <section class="content-grid">
         <div class="panel glass">
           <div class="panel-head">
-            <div><h2>August 2026</h2><span>My Calendar · 12 planned posts</span></div>
-            <span>Today · Aug 26</span>
+            <div><h2 id="visibleCalendarMonth">October 2026</h2><span id="visibleCalendarCount">My Calendar · 0 planned posts</span></div>
+            <div class="calendar-month-nav"><button type="button" id="calendarPreviousMonth" aria-label="Previous month">‹</button><button type="button" id="calendarGoToday">Today</button><button type="button" id="calendarNextMonth" aria-label="Next month">›</button></div>
           </div>
 
           <div class="calendar-scroll" id="calendarView">
-            <div class="calendar-grid">
-              <div class="dow">Sun</div><div class="dow">Mon</div><div class="dow">Tue</div><div class="dow">Wed</div><div class="dow">Thu</div><div class="dow">Fri</div><div class="dow">Sat</div>
-              <div class="day muted"><div class="date">26</div></div>
+            <div class="calendar-grid" id="dynamicCalendarGrid"></div>
+          </div>
               <div class="day muted"><div class="date">27</div></div>
               <div class="day muted"><div class="date">28</div></div>
               <div class="day muted"><div class="date">29</div></div>
@@ -2870,6 +2871,50 @@ document.querySelectorAll('.platform-tab').forEach(btn => {
 
 renderPostDimensions('LinkedIn');
 
+</script>
+<script>
+// Dashboard calendar navigation. Month and year selectors stay in sync.
+(function(){
+ const grid=document.getElementById('dynamicCalendarGrid');
+ const monthSelect=document.getElementById('calendarMonthFilter');
+ const yearSelect=document.getElementById('calendarYearFilter');
+ if(!grid||!monthSelect||!yearSelect)return;
+ const today=new Date();
+ let shown=new Date(today.getFullYear(),today.getMonth(),1);
+ const months=Array.from({length:12},(_,i)=>new Date(2026,i,1).toLocaleString('en-US',{month:'long'}));
+ monthSelect.innerHTML=months.map((m,i)=>`<option value="${i}">${m}</option>`).join('');
+ function fillYears(){const y=shown.getFullYear();yearSelect.innerHTML=Array.from({length:11},(_,i)=>y-5+i).map(v=>`<option value="${v}">${v}</option>`).join('');}
+ function getPosts(){return typeof localPosts!=='undefined'&&Array.isArray(localPosts)?localPosts:[];}
+ function paint(){
+  const y=shown.getFullYear(),m=shown.getMonth();
+  fillYears();yearSelect.value=String(y);monthSelect.value=String(m);
+  document.getElementById('visibleCalendarMonth').textContent=`${months[m]} ${y}`;
+  const posts=getPosts().filter(p=>{const d=String(p.date||'');return d.startsWith(`${y}-${String(m+1).padStart(2,'0')}-`);});
+  const profile=document.getElementById('profileFilter')?.value||'My Calendar';
+  document.getElementById('visibleCalendarCount').textContent=`${profile} · ${posts.length} planned post${posts.length===1?'':'s'}`;
+  const first=new Date(y,m,1).getDay(),days=new Date(y,m+1,0).getDate();
+  let markup=['Sun','Mon','Tue','Wed','Thu','Fri','Sat'].map(d=>`<div class="dow">${d}</div>`).join('');
+  const cells=Math.ceil((first+days)/7)*7;
+  for(let i=0;i<cells;i++){
+   const day=i-first+1,inside=day>=1&&day<=days;
+   const date=new Date(y,m,day);
+   const dateKey=`${date.getFullYear()}-${String(date.getMonth()+1).padStart(2,'0')}-${String(date.getDate()).padStart(2,'0')}`;
+   const daily=inside?posts.filter(p=>p.date===dateKey):[];
+   const chips=daily.map(p=>`<div class="post-chip ${p.status==='Published'?'soft':'yellow'}" title="${String(p.topic||'').replace(/"/g,'&quot;')}">${(p.platform||'Post')+' · '+(p.topic||'Untitled')}</div>`).join('');
+   markup+=`<div class="day ${inside?'':'muted'}"><div class="date">${date.getDate()}</div>${chips}</div>`;
+  }
+  grid.innerHTML=markup;
+ }
+ function move(offset){shown=new Date(shown.getFullYear(),shown.getMonth()+offset,1);paint();}
+ document.getElementById('calendarPreviousMonth').addEventListener('click',()=>move(-1));
+ document.getElementById('calendarNextMonth').addEventListener('click',()=>move(1));
+ document.getElementById('calendarGoToday').addEventListener('click',()=>{shown=new Date(new Date().getFullYear(),new Date().getMonth(),1);paint();});
+ monthSelect.addEventListener('change',()=>{shown=new Date(shown.getFullYear(),Number(monthSelect.value),1);paint();});
+ yearSelect.addEventListener('change',()=>{shown=new Date(Number(yearSelect.value),shown.getMonth(),1);paint();});
+ document.getElementById('profileFilter')?.addEventListener('change',paint);
+ window.refreshDashboardCalendar=paint;
+ paint();
+})();
 </script>
 </body>
 </html>
