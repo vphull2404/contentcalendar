@@ -2476,10 +2476,30 @@ function parseEventRange(text){
   const d=new Date(clean);
   return Number.isNaN(d.getTime())?null:{start:d,end:d};
 }
+// Annual events repeat on the same month/day in each calendar year.
+function annualEventStart(range, year){
+  if(!range) return null;
+  const month=range.start.getMonth(), day=range.start.getDate();
+  const date=new Date(year,month,day);
+  // February 29 has no occurrence in non-leap years.
+  return date.getMonth()===month ? date : null;
+}
+function annualEventOverlapsMonth(range,year,month){
+  if(!range) return false;
+  const duration=Math.max(0,Math.round((Date.UTC(range.end.getFullYear(),range.end.getMonth(),range.end.getDate())-Date.UTC(range.start.getFullYear(),range.start.getMonth(),range.start.getDate()))/86400000));
+  const monthStart=new Date(year,month,1), monthEnd=new Date(year,month+1,0);
+  for(const occurrenceYear of [year-1,year,year+1]){
+    const start=annualEventStart(range,occurrenceYear);
+    if(!start) continue;
+    const end=new Date(start.getFullYear(),start.getMonth(),start.getDate()+duration);
+    if(start<=monthEnd&&end>=monthStart)return true;
+  }
+  return false;
+}
 function inBrowserMonth(text,y,m){
   const r=parseEventRange(text); if(!r) return false;
   const s=new Date(y,m,1), e=new Date(y,m+1,0,23,59,59);
-  return r.start<=e && r.end>=s;
+  return annualEventOverlapsMonth(r,y,m);
 }
 function shortDate(text){
   const r=parseEventRange(text); if(!r) return text;
@@ -2915,7 +2935,8 @@ renderPostDimensions('LinkedIn');
    const eventNames=inside?events.filter(ev=>{
     const start=new Date(ev.range.start.getFullYear(),ev.range.start.getMonth(),ev.range.start.getDate());
     const end=new Date(ev.range.end.getFullYear(),ev.range.end.getMonth(),ev.range.end.getDate());
-    return date.getTime()===start.getTime();
+    const occurrence=annualEventStart(ev.range,y);
+    return occurrence && date.getTime()===occurrence.getTime();
    }):[];
    const eventChips=eventNames.length ? `<div class="calendar-event-chip" tabindex="0" role="button" aria-label="Show ${eventNames.length} events on this date"></div>` : '';
    markup+=`<div class="day ${inside?'':'muted'}"><div class="date">${date.getDate()}</div>${chips}${eventChips}</div>`;
@@ -2930,7 +2951,8 @@ renderPostDimensions('LinkedIn');
    const names=events.filter(ev=>{
     const a=new Date(ev.range.start.getFullYear(),ev.range.start.getMonth(),ev.range.start.getDate());
     const b=new Date(ev.range.end.getFullYear(),ev.range.end.getMonth(),ev.range.end.getDate());
-    return date.getTime()===a.getTime();
+    const occurrence=annualEventStart(ev.range,y);
+    return occurrence && date.getTime()===occurrence.getTime();
    });
    const chip=cell.querySelector('.calendar-event-chip');
    if(chip){
