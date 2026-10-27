@@ -1329,7 +1329,17 @@ td:last-child{border-radius:0 12px 12px 0}
 </style>
 <style>
 .annual-budget-heading{display:flex;align-items:center;justify-content:space-between;gap:6px}.annual-budget-edit{background:transparent;border:1px solid #ddd;border-radius:7px;padding:4px 7px;font-size:10px;font-weight:700;cursor:pointer;color:#333}.annual-budget-year{font-size:11px;color:#777;margin-top:5px}.annual-budget-track{height:6px;background:#e9e9e9;border-radius:10px;overflow:hidden;margin-top:9px}.annual-budget-track>div{height:100%;width:0%;background:#efc324;border-radius:10px;transition:width .2s}.annual-budget-foot{font-size:10px;color:#777;margin-top:6px}.score #dashboardCampaignSpent{font-size:clamp(19px,2vw,29px);margin-top:5px}.score #dashboardCampaignTarget{font-size:11px}
-</style></head>
+</style><style>
+#dashboardEventsPanel{min-height:160px;height:auto;padding-bottom:18px}
+#dashboardEventsPanel h3{margin:10px 0 12px}
+.dashboard-events-list{display:flex;flex-direction:column;gap:9px}
+.dashboard-event-row{display:flex;flex-direction:column;gap:3px;border-bottom:1px solid #ffffff30;padding-bottom:8px}
+.dashboard-event-row:last-child{border-bottom:0;padding-bottom:0}
+.dashboard-event-row strong{font-size:13px;line-height:1.3}
+.dashboard-event-row span,.dashboard-events-list p{font-size:11px;opacity:.76;margin:0}
+#dashboardActiveCampaigns,#dashboardUpcomingContent{font-size:clamp(24px,2.5vw,36px)}
+</style>
+</head>
 <body>
 <div class="app">
   <header class="topbar glass">
@@ -1434,18 +1444,14 @@ td:last-child{border-radius:0 12px 12px 0}
           <div class="sub">58% complete</div>
         </div>
         <div class="score event current glass event-nav-card current-dark">
-          <div class="label">Current Event</div>
-          <div class="value" id="currentEventName">No active event</div>
-          <div class="sub" id="currentEventDate">August 2026</div></div>
+          <div class="label">Active Campaigns</div>
+          <div class="value" id="dashboardActiveCampaigns">0</div>
+          <div class="sub" id="dashboardCampaignPlatforms">No active campaigns</div>
+        </div>
         <div class="score event glass event-nav-card">
-          <div class="label">Upcoming Event</div>
-          <div class="value" id="upcomingEventName">Labour Day</div>
-          <div class="sub" id="upcomingEventDate">Sep 7, 2026</div>
-          <div class="event-nav-controls">
-            <button class="event-arrow" id="upcomingPrev" type="button" aria-label="Previous upcoming event">‹</button>
-            <span class="event-counter" id="upcomingEventCounter">1 / 3</span>
-            <button class="event-arrow" id="upcomingNext" type="button" aria-label="Next upcoming event">›</button>
-          </div>
+          <div class="label">Upcoming Content</div>
+          <div class="value" id="dashboardUpcomingContent">0</div>
+          <div class="sub" id="dashboardUpcomingContentDetail">Scheduled posts this month</div>
         </div>
       </section>
 
@@ -1491,10 +1497,10 @@ td:last-child{border-radius:0 12px 12px 0}
         </div>
 
         <aside class="side-stack">
-          <div class="event-card">
-            <span class="badge">Prepare now</span>
-            <h3>Labour Day</h3>
-            <p>September 7, 2026. Creative planning window is open.</p>
+          <div class="event-card" id="dashboardEventsPanel">
+            <span class="badge">Upcoming Events</span>
+            <h3 id="dashboardEventsHeading">Events this month</h3>
+            <div id="dashboardEventsList" class="dashboard-events-list"></div>
           </div>
 
           <div class="panel glass">
@@ -2071,31 +2077,6 @@ const upcomingEvents = [
   {name:'Zero Emissions Day', date:'Sep 21, 2026'},
   {name:'National Welding Month', date:'Apr 1–30, 2027'}
 ];
-
-let currentEventIndex = 0;
-let upcomingEventIndex = 0;
-
-function renderCurrentEvent(){
-  const e = currentEvents[currentEventIndex];
-  document.getElementById('currentEventName').textContent = e.name;
-  document.getElementById('currentEventDate').textContent = e.date;
-  const currentCounter = document.getElementById('currentEventCounter'); if(currentCounter) currentCounter.textContent = `${currentEventIndex + 1} / ${currentEvents.length}`;
-}
-function renderUpcomingEvent(){
-  const e = upcomingEvents[upcomingEventIndex];
-  document.getElementById('upcomingEventName').textContent = e.name;
-  document.getElementById('upcomingEventDate').textContent = e.date;
-  document.getElementById('upcomingEventCounter').textContent = `${upcomingEventIndex + 1} / ${upcomingEvents.length}`;
-}
-
-document.getElementById('upcomingPrev').onclick = () => {
-  upcomingEventIndex = (upcomingEventIndex - 1 + upcomingEvents.length) % upcomingEvents.length;
-  renderUpcomingEvent();
-};
-document.getElementById('upcomingNext').onclick = () => {
-  upcomingEventIndex = (upcomingEventIndex + 1) % upcomingEvents.length;
-  renderUpcomingEvent();
-};
 
 const eventEditor = document.getElementById('eventEditorBackdrop');
 const eventForm = document.getElementById('eventForm');
@@ -2960,36 +2941,45 @@ renderPostDimensions('LinkedIn');
   occurrences.sort((a,b)=>a.start-b.start||a.name.localeCompare(b.name));
   const formatEventDate=d=>d.toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'});
   const monthLabel=months[m]+' '+y;
-  const active=occurrences.filter(e=>e.start<monthStart&&e.end>=monthStart);
-  const starts=occurrences.filter(e=>e.start>=monthStart&&e.start<=monthEnd);
-  const current=active[0];
-  document.getElementById('currentEventName').textContent=current?current.name:'No active event';
-  document.getElementById('currentEventDate').textContent=current?formatEventDate(current.start)+' – '+formatEventDate(current.end):monthLabel;
-  let upcomingIndex=0;
-  const upcomingName=document.getElementById('upcomingEventName');
-  const upcomingDate=document.getElementById('upcomingEventDate');
-  const upcomingCounter=document.getElementById('upcomingEventCounter');
-  const prev=document.getElementById('upcomingPrev'),next=document.getElementById('upcomingNext');
-  const planning=document.querySelector('.side-stack .event-card');
-  function showUpcoming(){
-   const e=starts[upcomingIndex];
-   upcomingName.textContent=e?e.name:'No events this month';
-   upcomingDate.textContent=e?formatEventDate(e.start):monthLabel;
-   upcomingCounter.textContent=starts.length?`${upcomingIndex+1} / ${starts.length}`:'0 / 0';
-   prev.disabled=next.disabled=starts.length<2;
-   if(planning){
-    const heading=planning.querySelector('h3'),detail=planning.querySelector('p');
-    if(heading)heading.textContent=e?e.name:'No events this month';
-    if(detail)detail.textContent=e?formatEventDate(e.start)+'. Creative planning window is open.':monthLabel+' · No upcoming events to prepare for.';
+  // One compact event list replaces the duplicated event scorecards.
+  const eventList=document.getElementById('dashboardEventsList');
+  const eventHeading=document.getElementById('dashboardEventsHeading');
+  if(eventList&&eventHeading){
+   eventHeading.textContent=monthLabel;
+   eventList.replaceChildren();
+   const monthEvents=occurrences.filter(e=>e.end>=monthStart&&e.start<=monthEnd);
+   if(!monthEvents.length){
+    const empty=document.createElement('p');empty.textContent='No events this month';eventList.appendChild(empty);
+   }else{
+    monthEvents.slice(0,4).forEach(e=>{
+     const row=document.createElement('div');row.className='dashboard-event-row';
+     const name=document.createElement('strong');name.textContent=e.name;
+     const date=document.createElement('span');date.textContent=formatEventDate(e.start);
+     row.append(name,date);eventList.appendChild(row);
+    });
+    if(monthEvents.length>4){const more=document.createElement('p');more.textContent='+'+(monthEvents.length-4)+' more events';eventList.appendChild(more);}
    }
   }
-  prev.onclick=()=>{if(starts.length){upcomingIndex=(upcomingIndex-1+starts.length)%starts.length;showUpcoming();}};
-  next.onclick=()=>{if(starts.length){upcomingIndex=(upcomingIndex+1)%starts.length;showUpcoming();}};
-  showUpcoming();
   if(typeof eventsBrowserYear!=='undefined'){eventsBrowserYear=y;eventsBrowserMonth=m;if(typeof renderMonthlyEvents==='function')renderMonthlyEvents();}
   fillYears();yearSelect.value=String(y);monthSelect.value=String(m);
   document.getElementById('visibleCalendarMonth').textContent=`${months[m]} ${y}`;
   const posts=getPosts().filter(p=>{const d=String(p.date||'');return d.startsWith(`${y}-${String(m+1).padStart(2,'0')}-`);});
+  const upcoming=posts.filter(p=>String(p.status||'').toLowerCase()==='scheduled');
+  const upcomingCount=document.getElementById('dashboardUpcomingContent');
+  if(upcomingCount)upcomingCount.textContent=String(upcoming.length);
+  const upcomingDetail=document.getElementById('dashboardUpcomingContentDetail');
+  if(upcomingDetail)upcomingDetail.textContent='Scheduled post'+(upcoming.length===1?'':'s')+' in '+months[m];
+  // Campaigns are saved separately; read their existing browser storage without changing it.
+  let campaigns=[];
+  try{const saved=JSON.parse(localStorage.getItem('plymovent_paid_campaigns_v1')||'[]');if(Array.isArray(saved))campaigns=saved;}catch(e){}
+  const monthFirst=y+'-'+String(m+1).padStart(2,'0')+'-01';
+  const monthLast=y+'-'+String(m+1).padStart(2,'0')+'-'+String(new Date(y,m+1,0).getDate()).padStart(2,'0');
+  const activeCampaigns=campaigns.filter(c=>c.status==='Active'&&c.start<=monthLast&&c.end>=monthFirst);
+  const activeCard=document.getElementById('dashboardActiveCampaigns');
+  if(activeCard)activeCard.textContent=String(activeCampaigns.length);
+  const platforms=new Set(activeCampaigns.map(c=>c.platform).filter(Boolean));
+  const platformDetail=document.getElementById('dashboardCampaignPlatforms');
+  if(platformDetail)platformDetail.textContent=activeCampaigns.length?'Across '+platforms.size+' platform'+(platforms.size===1?'':'s'):'No active campaigns';
   const profile=document.getElementById('profileFilter')?.value||'My Calendar';
   document.getElementById('visibleCalendarCount').textContent=`${profile} · ${posts.length} planned post${posts.length===1?'':'s'}`;
   const first=new Date(y,m,1).getDay(),days=new Date(y,m+1,0).getDate();
@@ -3116,8 +3106,8 @@ function close(){$('pcModal').hidden=true}
 $('pcAdd').onclick=()=>open();$('pcClose').onclick=close;$('pcCancel').onclick=close;
 $('pcModal').addEventListener('click',e=>{if(e.target===$('pcModal'))close()});
 ['budget','start','end'].forEach(name=>$('pcForm').elements.namedItem(name).addEventListener('input',updateSpendPreview));
-$('pcForm').onsubmit=e=>{e.preventDefault();const data=Object.fromEntries(new FormData(e.target));if(data.end<data.start){alert('End date must be on or after start date.');return}const id=editing||('campaign-'+Date.now()+'-'+Math.random().toString(36).slice(2));const r={...data,id,budget:Number(data.budget),spent:campaignSpend(data)};records=editing?records.map(x=>x.id===editing?r:x):[...records,r];persist();close();render()};
-$('pcRows').onclick=e=>{const edit=e.target.closest('[data-edit]'),del=e.target.closest('[data-delete]');if(edit)open(edit.dataset.edit);if(del&&confirm('Delete this campaign?')){records=records.filter(r=>r.id!==del.dataset.delete);persist();render()}};
+$('pcForm').onsubmit=e=>{e.preventDefault();const data=Object.fromEntries(new FormData(e.target));if(data.end<data.start){alert('End date must be on or after start date.');return}const id=editing||('campaign-'+Date.now()+'-'+Math.random().toString(36).slice(2));const r={...data,id,budget:Number(data.budget),spent:campaignSpend(data)};records=editing?records.map(x=>x.id===editing?r:x):[...records,r];persist();close();render();document.getElementById('calendarMonthFilter')?.dispatchEvent(new Event('change'))};
+$('pcRows').onclick=e=>{const edit=e.target.closest('[data-edit]'),del=e.target.closest('[data-delete]');if(edit)open(edit.dataset.edit);if(del&&confirm('Delete this campaign?')){records=records.filter(r=>r.id!==del.dataset.delete);persist();render();document.getElementById('calendarMonthFilter')?.dispatchEvent(new Event('change'))}};
 ['pcBrand','pcPlatform','pcStatus','pcMonth'].forEach(id=>$(id).addEventListener('change',render));
 $('pcClear').onclick=()=>{['pcBrand','pcPlatform','pcStatus','pcMonth'].forEach(id=>$(id).value='');render()};
 render();
