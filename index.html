@@ -2925,7 +2925,30 @@ renderPostDimensions('LinkedIn');
  function paint(){
   hideEventPopover();
   const y=shown.getFullYear(),m=shown.getMonth();
+  // Paint the calendar first, independently of the event-summary widgets.
+  const posts=getPosts().filter(p=>String(p.date||'').startsWith(`${y}-${String(m+1).padStart(2,'0')}-`));
   const events=calendarEvents();
+  const first=new Date(y,m,1).getDay(),days=new Date(y,m+1,0).getDate();
+  let markup=['Sun','Mon','Tue','Wed','Thu','Fri','Sat'].map(d=>`<div class="dow">${d}</div>`).join('');
+  const cells=Math.ceil((first+days)/7)*7;
+  for(let i=0;i<cells;i++){
+   const day=i-first+1,inside=day>=1&&day<=days;
+   const date=new Date(y,m,day);
+   const dateKey=`${date.getFullYear()}-${String(date.getMonth()+1).padStart(2,'0')}-${String(date.getDate()).padStart(2,'0')}`;
+   const daily=inside?posts.filter(p=>p.date===dateKey):[];
+   const chips=daily.map(p=>`<div class="post-chip ${p.status==='Published'?'soft':'yellow'}" title="${String(p.topic||'').replace(/"/g,'&quot;')}">${(p.platform||'Post')+' · '+(p.topic||'Untitled')}</div>`).join('');
+   const eventNames=inside?events.filter(ev=>{
+    const start=new Date(ev.range.start.getFullYear(),ev.range.start.getMonth(),ev.range.start.getDate());
+    const end=new Date(ev.range.end.getFullYear(),ev.range.end.getMonth(),ev.range.end.getDate());
+    const occurrence=annualEventStart(ev.range,y);
+    return occurrence && date.getTime()===occurrence.getTime();
+   }):[];
+   const eventChips=eventNames.length ? `<div class="calendar-event-chip" tabindex="0" role="button" aria-label="Show ${eventNames.length} events on this date"></div>` : '';
+   markup+=`<div class="day ${inside?'':'muted'}"><div class="date">${date.getDate()}</div>${chips}${eventChips}</div>`;
+  }
+  grid.innerHTML=markup;
+  fillYears();yearSelect.value=String(y);monthSelect.value=String(m);
+  document.getElementById("visibleCalendarMonth").textContent=`${months[m]} ${y}`;
   // Synchronize event cards and planning panel with the displayed calendar month.
   const monthStart=new Date(y,m,1), monthEnd=new Date(y,m+1,0);
   const occurrences=[];
@@ -2963,7 +2986,6 @@ renderPostDimensions('LinkedIn');
   if(typeof eventsBrowserYear!=='undefined'){eventsBrowserYear=y;eventsBrowserMonth=m;if(typeof renderMonthlyEvents==='function')renderMonthlyEvents();}
   fillYears();yearSelect.value=String(y);monthSelect.value=String(m);
   document.getElementById('visibleCalendarMonth').textContent=`${months[m]} ${y}`;
-  const posts=getPosts().filter(p=>{const d=String(p.date||'');return d.startsWith(`${y}-${String(m+1).padStart(2,'0')}-`);});
   const upcoming=posts.filter(p=>String(p.status||'').toLowerCase()==='scheduled');
   const upcomingCount=document.getElementById('dashboardUpcomingContent');
   if(upcomingCount)upcomingCount.textContent=String(upcoming.length);
@@ -2982,25 +3004,7 @@ renderPostDimensions('LinkedIn');
   if(platformDetail)platformDetail.textContent=activeCampaigns.length?'Across '+platforms.size+' platform'+(platforms.size===1?'':'s'):'No active campaigns';
   const profile=document.getElementById('profileFilter')?.value||'My Calendar';
   document.getElementById('visibleCalendarCount').textContent=`${profile} · ${posts.length} planned post${posts.length===1?'':'s'}`;
-  const first=new Date(y,m,1).getDay(),days=new Date(y,m+1,0).getDate();
-  let markup=['Sun','Mon','Tue','Wed','Thu','Fri','Sat'].map(d=>`<div class="dow">${d}</div>`).join('');
-  const cells=Math.ceil((first+days)/7)*7;
-  for(let i=0;i<cells;i++){
-   const day=i-first+1,inside=day>=1&&day<=days;
-   const date=new Date(y,m,day);
-   const dateKey=`${date.getFullYear()}-${String(date.getMonth()+1).padStart(2,'0')}-${String(date.getDate()).padStart(2,'0')}`;
-   const daily=inside?posts.filter(p=>p.date===dateKey):[];
-   const chips=daily.map(p=>`<div class="post-chip ${p.status==='Published'?'soft':'yellow'}" title="${String(p.topic||'').replace(/"/g,'&quot;')}">${(p.platform||'Post')+' · '+(p.topic||'Untitled')}</div>`).join('');
-   const eventNames=inside?events.filter(ev=>{
-    const start=new Date(ev.range.start.getFullYear(),ev.range.start.getMonth(),ev.range.start.getDate());
-    const end=new Date(ev.range.end.getFullYear(),ev.range.end.getMonth(),ev.range.end.getDate());
-    const occurrence=annualEventStart(ev.range,y);
-    return occurrence && date.getTime()===occurrence.getTime();
-   }):[];
-   const eventChips=eventNames.length ? `<div class="calendar-event-chip" tabindex="0" role="button" aria-label="Show ${eventNames.length} events on this date"></div>` : '';
-   markup+=`<div class="day ${inside?'':'muted'}"><div class="date">${date.getDate()}</div>${chips}${eventChips}</div>`;
-  }
-  grid.innerHTML=markup;
+
   // Use textContent for user-entered event names to avoid HTML injection.
   const displayed=Array.from(grid.querySelectorAll('.day'));
   displayed.forEach((cell,i)=>{
