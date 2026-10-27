@@ -2945,6 +2945,48 @@ renderPostDimensions('LinkedIn');
   hideEventPopover();
   const y=shown.getFullYear(),m=shown.getMonth();
   const events=calendarEvents();
+  // Synchronize event cards and planning panel with the displayed calendar month.
+  const monthStart=new Date(y,m,1), monthEnd=new Date(y,m+1,0);
+  const occurrences=[];
+  for(const ev of events){
+   const duration=Math.max(0,Math.round((Date.UTC(ev.range.end.getFullYear(),ev.range.end.getMonth(),ev.range.end.getDate())-Date.UTC(ev.range.start.getFullYear(),ev.range.start.getMonth(),ev.range.start.getDate()))/86400000));
+   for(const yr of [y-1,y,y+1]){
+    const start=annualEventStart(ev.range,yr);
+    if(!start)continue;
+    const end=new Date(start.getFullYear(),start.getMonth(),start.getDate()+duration);
+    if(start<=monthEnd&&end>=monthStart)occurrences.push({name:ev.name,start,end});
+   }
+  }
+  occurrences.sort((a,b)=>a.start-b.start||a.name.localeCompare(b.name));
+  const formatEventDate=d=>d.toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'});
+  const monthLabel=months[m]+' '+y;
+  const active=occurrences.filter(e=>e.start<monthStart&&e.end>=monthStart);
+  const starts=occurrences.filter(e=>e.start>=monthStart&&e.start<=monthEnd);
+  const current=active[0];
+  document.getElementById('currentEventName').textContent=current?current.name:'No active event';
+  document.getElementById('currentEventDate').textContent=current?formatEventDate(current.start)+' – '+formatEventDate(current.end):monthLabel;
+  let upcomingIndex=0;
+  const upcomingName=document.getElementById('upcomingEventName');
+  const upcomingDate=document.getElementById('upcomingEventDate');
+  const upcomingCounter=document.getElementById('upcomingEventCounter');
+  const prev=document.getElementById('upcomingPrev'),next=document.getElementById('upcomingNext');
+  const planning=document.querySelector('.side-stack .event-card');
+  function showUpcoming(){
+   const e=starts[upcomingIndex];
+   upcomingName.textContent=e?e.name:'No events this month';
+   upcomingDate.textContent=e?formatEventDate(e.start):monthLabel;
+   upcomingCounter.textContent=starts.length?`${upcomingIndex+1} / ${starts.length}`:'0 / 0';
+   prev.disabled=next.disabled=starts.length<2;
+   if(planning){
+    const heading=planning.querySelector('h3'),detail=planning.querySelector('p');
+    if(heading)heading.textContent=e?e.name:'No events this month';
+    if(detail)detail.textContent=e?formatEventDate(e.start)+'. Creative planning window is open.':monthLabel+' · No upcoming events to prepare for.';
+   }
+  }
+  prev.onclick=()=>{if(starts.length){upcomingIndex=(upcomingIndex-1+starts.length)%starts.length;showUpcoming();}};
+  next.onclick=()=>{if(starts.length){upcomingIndex=(upcomingIndex+1)%starts.length;showUpcoming();}};
+  showUpcoming();
+  if(typeof eventsBrowserYear!=='undefined'){eventsBrowserYear=y;eventsBrowserMonth=m;if(typeof renderMonthlyEvents==='function')renderMonthlyEvents();}
   fillYears();yearSelect.value=String(y);monthSelect.value=String(m);
   document.getElementById('visibleCalendarMonth').textContent=`${months[m]} ${y}`;
   const posts=getPosts().filter(p=>{const d=String(p.date||'');return d.startsWith(`${y}-${String(m+1).padStart(2,'0')}-`);});
@@ -3000,7 +3042,7 @@ renderPostDimensions('LinkedIn');
  yearSelect.addEventListener('change',()=>{shown=new Date(Number(yearSelect.value),shown.getMonth(),1);paint();});
  document.getElementById('profileFilter')?.addEventListener('change',paint);
  // Refresh after events are added, edited or deleted.
- document.getElementById('eventForm')?.addEventListener('submit',()=>setTimeout(paint,60));
+ document.getElementById('eventForm')?.addEventListener('submit',()=>setTimeout(paint,100));
  document.getElementById('eventTableBody')?.addEventListener('click',e=>{
   if(e.target.closest('.delete-event'))setTimeout(paint,60);
  });
